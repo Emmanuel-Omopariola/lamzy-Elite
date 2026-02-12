@@ -1,0 +1,1441 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data Sales - Lamzy Elite</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --bg-primary: #0a0a0a;
+            --bg-secondary: #121212;
+            --bg-tertiary: #1e1e1e;
+            --bg-hover: #2a2a2a;
+            --text-primary: #ffffff;
+            --text-secondary: #b0b0b0;
+            --text-tertiary: #808080;
+            --accent-primary: #ffffff;
+            --accent-hover: #f0f0f0;
+            --border: #2a2a2a;
+            --card-bg: #1a1a1a;
+            --green: #22c55e;
+            --red: #ef4444;
+            --orange: #f59e0b;
+        }
+
+        body.theme-light {
+            --bg-primary: #f0f2f5;
+            --bg-secondary: #ffffff;
+            --bg-tertiary: #e4e7ea;
+            --bg-hover: #dcdfe3;
+            --text-primary: #202124;
+            --text-secondary: #5f6368;
+            --text-tertiary: #80868b;
+            --accent-primary: #1a73e8;
+            --accent-hover: #1558b0;
+            --border: #dadce0;
+            --card-bg: #ffffff;
+        }
+
+        body.theme-dark-blue {
+            --bg-primary: #0d1b2a;
+            --bg-secondary: #132f4c;
+            --bg-tertiary: #1a3a52;
+            --bg-hover: #244060;
+            --text-primary: #e3f2fd;
+            --text-secondary: #90caf9;
+            --text-tertiary: #64b5f6;
+            --accent-primary: #2979f0;
+            --accent-hover: #1565c0;
+            --border: #1e3a5f;
+            --card-bg: #1a2332;
+        }
+
+        body.theme-dark-purple {
+            --bg-primary: #1a0f2e;
+            --bg-secondary: #2d1b47;
+            --bg-tertiary: #3d2757;
+            --bg-hover: #4a3466;
+            --text-primary: #f3e5f5;
+            --text-secondary: #ce93d8;
+            --text-tertiary: #ba68c8;
+            --accent-primary: #ab47bc;
+            --accent-hover: #7b1fa2;
+            --border: #4a3a66;
+            --card-bg: #2a1a42;
+        }
+
+        body.theme-dark-green {
+            --bg-primary: #0f1f1a;
+            --bg-secondary: #1b3a30;
+            --bg-tertiary: #254535;
+            --bg-hover: #2f5a45;
+            --text-primary: #e0f2f1;
+            --text-secondary: #80cbc4;
+            --text-tertiary: #4db6ac;
+            --accent-primary: #26a69a;
+            --accent-hover: #00897b;
+            --border: #3a5a4a;
+            --card-bg: #1a3428;
+        }
+
+        body.theme-ocean {
+            --bg-primary: #0a1a2e;
+            --bg-secondary: #16213e;
+            --bg-tertiary: #0f3460;
+            --bg-hover: #1a4d7a;
+            --text-primary: #eef4f9;
+            --text-secondary: #a8c5dd;
+            --text-tertiary: #7b9cbb;
+            --accent-primary: #00d4ff;
+            --accent-hover: #00a8cc;
+            --border: #1a3d5c;
+            --card-bg: #162a42;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            overflow: hidden;
+            transition: background 0.3s ease, color 0.3s ease;
+        }
+
+        .dashboard-container {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+
+        .top-navbar {
+            background: var(--card-bg);
+            border-bottom: 1px solid var(--border);
+            padding: 10px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 24px;
+            position: sticky;
+            top: 0;
+            z-index: 500;
+            height: 62px;
+        }
+
+        .nav-left {
+            display: flex;
+            align-items: center;
+            gap: 18px;
+            flex: 1;
+        }
+
+        .nav-logo {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+            height: 34px;
+            flex-shrink: 0;
+        }
+
+        .logo-image {
+            height: 28px;
+            width: auto;
+            flex-shrink: 0;
+        }
+
+        .nav-logo-text {
+            font-size: 20px;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            background: linear-gradient(135deg, #fff 30%, #a0c4ff);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .nav-right {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-shrink: 0;
+        }
+
+        .icon-btn {
+            width: 34px;
+            height: 34px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: var(--text-secondary);
+            transition: all 0.2s;
+            font-size: 13px;
+        }
+
+        .icon-btn:hover {
+            background: var(--bg-hover);
+            color: var(--accent-primary);
+            border-color: var(--accent-primary);
+        }
+
+        .profile {
+            width: 34px;
+            height: 34px;
+            background: linear-gradient(135deg, #2979f0, #1565c0);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            cursor: pointer;
+            font-size: 12px;
+            color: #fff;
+        }
+
+        .main-wrapper {
+            display: flex;
+            flex: 1;
+            height: calc(100vh - 62px);
+            overflow: hidden;
+        }
+
+        .sidebar {
+            width: 68px;
+            background: var(--card-bg);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            z-index: 50;
+            transition: width 0.25s cubic-bezier(0.4,0,0.2,1);
+            overflow: hidden;
+            overflow-y: auto;
+            flex-shrink: 0;
+            height: calc(100vh - 62px);
+            max-height: calc(100vh - 62px);
+        }
+
+        .sidebar.expanded { width: 230px; }
+        .sidebar.hover-mode { width: 68px; z-index: 100; }
+        .sidebar.hover-mode:hover,
+        .sidebar.hover-mode.hovered { width: 230px; z-index: 200; }
+
+        .sidebar-header {
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding-left: 22px;
+            height: 0;
+            flex-shrink: 0;
+            overflow: hidden;
+        }
+
+        .sidebar-header-bar {
+            width: 3px;
+            height: 18px;
+            background: var(--accent-primary);
+            border-radius: 2px;
+            flex-shrink: 0;
+        }
+
+        .sidebar-header-text {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--text-primary);
+            white-space: nowrap;
+            opacity: 0;
+            transition: opacity 0.18s 0.08s;
+        }
+
+        .sidebar.expanded .sidebar-header-text,
+        .sidebar.hover-mode:hover .sidebar-header-text,
+        .sidebar.hover-mode.hovered .sidebar-header-text { opacity: 1; }
+
+        .sidebar-section {
+            padding: 8px 0;
+            border-bottom: 1px solid var(--border);
+            flex-shrink: 0;
+        }
+
+        .sidebar-section:last-of-type { border-bottom: none; }
+
+        .section-title {
+            padding: 5px 22px 3px;
+            font-size: 10px;
+            font-weight: 700;
+            color: var(--text-tertiary);
+            text-transform: uppercase;
+            letter-spacing: 1.1px;
+            white-space: nowrap;
+            opacity: 0;
+            transition: opacity 0.18s 0.1s;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .section-title i {
+            font-size: 14px;
+            min-width: 18px;
+            text-align: center;
+            flex-shrink: 0;
+            color: var(--accent-primary);
+            opacity: 1 !important;
+        }
+
+        .sidebar.expanded .section-title,
+        .sidebar.hover-mode:hover .section-title,
+        .sidebar.hover-mode.hovered .section-title { opacity: 1; }
+
+        .sidebar-item {
+            width: 100%;
+            height: 40px;
+            padding: 0 22px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: color 0.2s, background 0.2s;
+            position: relative;
+            border-left: 3px solid transparent;
+        }
+
+        .sidebar-item i {
+            min-width: 18px;
+            text-align: center;
+            font-size: 15px;
+            transition: color 0.2s;
+            flex-shrink: 0;
+            opacity: 1 !important;
+        }
+
+        .sidebar-label {
+            font-size: 13px;
+            font-weight: 500;
+            white-space: nowrap;
+            opacity: 0;
+            transition: opacity 0.18s 0.1s;
+        }
+
+        .sidebar.expanded .sidebar-label,
+        .sidebar.hover-mode:hover .sidebar-label,
+        .sidebar.hover-mode.hovered .sidebar-label { opacity: 1; }
+
+        .sidebar-item:hover {
+            color: var(--text-primary);
+            background: var(--bg-hover);
+            border-left-color: var(--accent-primary);
+        }
+
+        .sidebar-item.active {
+            color: var(--accent-primary);
+            background: rgba(41,121,240,0.08);
+            border-left-color: var(--accent-primary);
+        }
+
+        .sidebar-item.active i { color: var(--accent-primary); }
+
+        .sidebar-controls {
+            margin-top: auto;
+            flex-shrink: 0;
+            border-top: 1px solid var(--border);
+            background: var(--bg-hover);
+            overflow: hidden;
+        }
+
+        .sidebar-controls .ctrl-icon {
+            width: 68px;
+            height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-tertiary);
+            font-size: 15px;
+            cursor: pointer;
+            flex-shrink: 0;
+            transition: color 0.2s;
+        }
+
+        .sidebar-controls .ctrl-icon:hover { color: var(--accent-primary); }
+
+        .sidebar::-webkit-scrollbar { width: 6px; }
+        .sidebar::-webkit-scrollbar-track { background: transparent; }
+        .sidebar::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+        .content-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .content-header {
+            background: var(--card-bg);
+            border-bottom: 1px solid var(--border);
+            padding: 20px 28px;
+            border-radius: 0;
+        }
+
+        .content-header h1 {
+            font-size: 28px;
+            font-weight: 800;
+            margin-bottom: 4px;
+            background: linear-gradient(135deg, var(--accent-primary), #7fb3ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .content-header p {
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
+        .content-scroll {
+            flex: 1;
+            overflow-y: auto;
+            padding: 28px;
+            background: var(--bg-primary);
+            display: flex;
+            justify-content: center;
+        }
+
+        .content-scroll::-webkit-scrollbar { width: 6px; }
+        .content-scroll::-webkit-scrollbar-track { background: transparent; }
+        .content-scroll::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+        .content-wrapper {
+            width: 100%;
+            max-width: 1000px;
+            padding-bottom: 400px;
+            min-height: 130vh;
+        }
+
+        .section {
+            margin-bottom: 32px;
+        }
+
+        .section-label {
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--text-tertiary);
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            margin-bottom: 14px;
+        }
+
+        .input-group {
+            margin-bottom: 16px;
+        }
+
+        .input-label {
+            font-size: 12px;
+            color: var(--text-tertiary);
+            margin-bottom: 8px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .input-field {
+            width: 100%;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 12px 14px;
+            color: var(--text-primary);
+            font-size: 14px;
+            font-weight: 600;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .input-field:focus {
+            outline: none;
+            border-color: var(--accent-primary);
+            box-shadow: 0 0 0 3px rgba(41,121,240,0.12);
+        }
+
+        input[type="time"],
+        input[type="date"] {
+            color-scheme: dark;
+        }
+
+        input[type="time"]::placeholder,
+        input[type="date"]::placeholder {
+            color: var(--text-secondary);
+        }
+
+        .network-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 12px;
+            max-width: 600px;
+        }
+
+        .network-card {
+            background: var(--card-bg);
+            border: 2px solid var(--border);
+            border-radius: 10px;
+            padding: 16px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            position: relative;
+        }
+
+        .network-card:hover {
+            border-color: var(--accent-primary);
+            background: var(--bg-hover);
+        }
+
+        .network-card.selected {
+            border-color: var(--accent-primary);
+            background: rgba(41,121,240,0.08);
+            box-shadow: 0 0 0 1px var(--accent-primary);
+        }
+
+        .network-logo {
+            width: 60px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--bg-primary);
+            border-radius: 8px;
+        }
+
+        .network-logo img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        .network-name {
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--text-primary);
+            text-align: center;
+        }
+
+        .bundles-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+            gap: 12px;
+            max-width: 900px;
+            margin-bottom: 28px;
+        }
+
+        .bundle-card {
+            background: var(--card-bg);
+            border: 2px solid var(--border);
+            border-radius: 10px;
+            padding: 16px;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: center;
+        }
+
+        .bundle-card:hover {
+            border-color: var(--accent-primary);
+            background: var(--bg-hover);
+        }
+
+        .bundle-card.selected {
+            border-color: var(--green);
+            background: rgba(34,197,94,0.08);
+        }
+
+        .bundle-data {
+            font-size: 20px;
+            font-weight: 800;
+            color: var(--text-primary);
+            margin-bottom: 6px;
+        }
+
+        .bundle-validity {
+            font-size: 11px;
+            color: var(--text-tertiary);
+            margin-bottom: 8px;
+        }
+
+        .bundle-price {
+            font-size: 16px;
+            font-weight: 800;
+            color: var(--green);
+        }
+
+        .automation-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 20px;
+            max-width: 600px;
+            margin-bottom: 28px;
+        }
+
+        .automation-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .automation-toggle {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .toggle-switch {
+            position: relative;
+            width: 50px;
+            height: 28px;
+            background: var(--bg-hover);
+            border-radius: 14px;
+            cursor: pointer;
+            transition: background 0.2s;
+            border: 2px solid var(--border);
+        }
+
+        .toggle-switch.on {
+            background: var(--green);
+            border-color: var(--green);
+        }
+
+        .toggle-switch::after {
+            content: '';
+            position: absolute;
+            width: 22px;
+            height: 22px;
+            background: #fff;
+            border-radius: 50%;
+            top: 2px;
+            left: 2px;
+            transition: left 0.2s;
+        }
+
+        .toggle-switch.on::after {
+            left: 24px;
+        }
+
+        .toggle-label {
+            font-size: 13px;
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+
+        .schedule-fields {
+            display: none;
+        }
+
+        .schedule-fields.show {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .field-row {
+            display: flex;
+            gap: 12px;
+            align-items: flex-end;
+        }
+
+        .field-col {
+            flex: 1;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 12px;
+            max-width: 600px;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 14px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #2979f0, #1565c0);
+            color: #fff;
+        }
+
+        .btn-primary:hover {
+            box-shadow: 0 6px 18px rgba(41,121,240,0.4);
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: var(--bg-hover);
+            color: var(--text-primary);
+            border: 1px solid var(--border);
+        }
+
+        .btn-secondary:hover {
+            background: var(--bg-tertiary);
+            border-color: var(--accent-primary);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        @media (max-width: 480px) {
+            .dashboard-container {
+                height: 100vh;
+                overflow: hidden;
+            }
+
+            .top-navbar {
+                height: 52px;
+                padding: 6px 8px;
+                gap: 4px;
+            }
+
+            .nav-left {
+                gap: 2px;
+            }
+
+            .nav-logo-text {
+                font-size: 14px;
+            }
+
+            .pair-selector {
+                padding: 3px 6px;
+                gap: 2px;
+                font-size: 10px;
+            }
+
+            .crypto-icon {
+                width: 20px;
+                height: 20px;
+                font-size: 10px;
+            }
+
+            #pairName {
+                font-size: 10px;
+                display: none;
+            }
+
+            #pairLeverage {
+                display: none;
+            }
+
+            .nav-right {
+                gap: 3px;
+            }
+
+            .icon-btn {
+                width: 30px;
+                height: 30px;
+                font-size: 13px;
+                border-radius: 4px;
+            }
+
+            .profile {
+                width: 30px;
+                height: 30px;
+                font-size: 10px;
+            }
+
+            .main-wrapper {
+                height: calc(100vh - 52px);
+            }
+
+            .sidebar {
+                width: 50px;
+                padding-bottom: 80px;
+            }
+
+            .sidebar.expanded {
+                width: 180px;
+            }
+
+            .sidebar-item {
+                height: 38px;
+                padding: 0 16px;
+                gap: 10px;
+            }
+
+            .sidebar-item i {
+                font-size: 13px;
+            }
+
+            .section-title {
+                padding: 0 8px;
+                font-size: 9px;
+                text-transform: uppercase;
+            }
+
+            .sidebar-controls {
+                display: none;
+            }
+
+            .search-wrapper {
+                display: none;
+            }
+
+            .content-header {
+                padding: 12px 12px;
+                gap: 8px;
+                border-bottom: 1px solid var(--border);
+            }
+
+            .content-header i {
+                font-size: 20px;
+            }
+
+            .content-header h1 {
+                font-size: 18px;
+            }
+
+            .content-body {
+                padding: 12px;
+            }
+
+            .networks-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+                gap: 8px;
+                max-width: 100%;
+                margin-bottom: 16px;
+            }
+
+            .network-card {
+                background: var(--card-bg);
+                border: 2px solid var(--border);
+                border-radius: 8px;
+                padding: 10px;
+                cursor: pointer;
+                transition: all 0.2s;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                gap: 6px;
+                position: relative;
+            }
+
+            .network-card:hover {
+                border-color: var(--accent-primary);
+                background: var(--bg-hover);
+            }
+
+            .network-card.selected {
+                border-color: var(--accent-primary);
+                background: rgba(41,121,240,0.08);
+                box-shadow: 0 0 0 1px var(--accent-primary);
+            }
+
+            .network-logo {
+                width: 40px;
+                height: 40px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                background: var(--bg-primary);
+                border-radius: 6px;
+            }
+
+            .network-logo img {
+                width: 100%;
+                height: 100%;
+                object-fit: contain;
+            }
+
+            .network-name {
+                font-size: 9px;
+                font-weight: 700;
+                color: var(--text-primary);
+                text-align: center;
+            }
+
+            .bundles-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+                gap: 8px;
+                max-width: 100%;
+                margin-bottom: 16px;
+            }
+
+            .bundle-card {
+                background: var(--card-bg);
+                border: 2px solid var(--border);
+                border-radius: 8px;
+                padding: 10px;
+                cursor: pointer;
+                transition: all 0.2s;
+                text-align: center;
+            }
+
+            .bundle-card:hover {
+                border-color: var(--accent-primary);
+                background: var(--bg-hover);
+            }
+
+            .bundle-card.selected {
+                border-color: var(--green);
+                background: rgba(34,197,94,0.08);
+            }
+
+            .bundle-data {
+                font-size: 14px;
+                font-weight: 800;
+                color: var(--text-primary);
+                margin-bottom: 4px;
+            }
+
+            .bundle-validity {
+                font-size: 9px;
+                color: var(--text-tertiary);
+                margin-bottom: 6px;
+            }
+
+            .bundle-price {
+                font-size: 13px;
+                font-weight: 800;
+                color: var(--green);
+            }
+
+            .automation-card {
+                background: var(--card-bg);
+                border: 1px solid var(--border);
+                border-radius: 8px;
+                padding: 12px;
+                max-width: 100%;
+                margin-bottom: 16px;
+            }
+
+            .automation-title {
+                font-size: 13px;
+                font-weight: 700;
+                color: var(--text-primary);
+                margin-bottom: 10px;
+                display: flex;
+                align-items: center;
+                gap: 6px;
+            }
+
+            .automation-toggle {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                margin-bottom: 12px;
+                padding-bottom: 12px;
+                border-bottom: 1px solid var(--border);
+            }
+
+            .toggle-switch {
+                position: relative;
+                width: 44px;
+                height: 24px;
+                background: var(--bg-hover);
+                border-radius: 12px;
+                cursor: pointer;
+                transition: background 0.2s;
+                border: 2px solid var(--border);
+                flex-shrink: 0;
+            }
+
+            .toggle-switch.on {
+                background: var(--green);
+                border-color: var(--green);
+            }
+
+            .toggle-switch::after {
+                content: '';
+                position: absolute;
+                width: 18px;
+                height: 18px;
+                background: #fff;
+                border-radius: 50%;
+                top: 2px;
+                left: 2px;
+                transition: left 0.2s;
+            }
+
+            .toggle-switch.on::after {
+                left: 20px;
+            }
+
+            .toggle-label {
+                font-size: 12px;
+                color: var(--text-primary);
+                font-weight: 600;
+            }
+
+            .schedule-fields {
+                display: none;
+            }
+
+            .schedule-fields.show {
+                display: flex;
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .field-row {
+                display: flex;
+                gap: 8px;
+                align-items: flex-end;
+                flex-wrap: wrap;
+            }
+
+            .field-col {
+                flex: 1;
+                min-width: 120px;
+            }
+
+            .button-group {
+                display: flex;
+                gap: 8px;
+                max-width: 100%;
+                margin-top: 12px;
+                flex-wrap: wrap;
+            }
+
+            .theme-fab {
+                width: 42px;
+                height: 42px;
+                font-size: 16px;
+                bottom: 16px;
+                right: 16px;
+                border: 2px solid var(--accent-primary);
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="dashboard-container">
+    <!-- TOP NAV -->
+    <div class="top-navbar">
+        <div class="nav-left">
+            <div class="nav-logo" onclick="window.location.href='dashboard.html'" style="cursor:pointer;">
+                <img src="images/logo.png" alt="Lamzy Elite" class="logo-image"><span class="nav-logo-text">Lamzy<span style="-webkit-text-fill-color: var(--accent-primary);">Elite</span></span>
+            </div>
+        </div>
+
+        <div class="nav-right">
+            <div class="icon-btn"><i class="fas fa-bell"></i></div>
+            <div class="icon-btn"><i class="fas fa-cog"></i></div>
+            <div class="profile">LE</div>
+        </div>
+    </div>
+
+    <!-- MAIN -->
+    <div class="main-wrapper">
+        <!-- SIDEBAR -->
+        <div class="sidebar hover-mode" id="sidebar">
+            <div class="sidebar-section">
+                <div class="sidebar-item" onclick="goTo('dashboard.html')"><i class="fas fa-home"></i><span class="sidebar-label">Dashboard</span></div>
+            </div>
+
+            <div class="sidebar-section">
+                <div class="section-title"><i class="fas fa-chart-line"></i> Trading</div>
+                <div class="sidebar-item" onclick="goTo('trading.html')"><i class="fas fa-chart-line"></i><span class="sidebar-label">Trading</span></div>
+                <div class="sidebar-item" onclick="goTo('markets.html')"><i class="fas fa-globe"></i><span class="sidebar-label">Markets</span></div>
+                <div class="sidebar-item" onclick="goTo('positions.html')"><i class="fas fa-briefcase"></i><span class="sidebar-label">Positions</span></div>
+                <div class="sidebar-item" onclick="goTo('orders.html')"><i class="fas fa-list"></i><span class="sidebar-label">Orders</span></div>
+                <div class="sidebar-item" onclick="goTo('signals.html')"><i class="fas fa-signal"></i><span class="sidebar-label">Live Signals</span></div>
+            </div>
+
+            <div class="sidebar-section">
+                <div class="section-title"><i class="fas fa-briefcase"></i> Portfolio</div>
+                <div class="sidebar-item" onclick="goTo('wallet.html')"><i class="fas fa-wallet"></i><span class="sidebar-label">Wallet</span></div>
+                <div class="sidebar-item" onclick="goTo('assets.html')"><i class="fas fa-coins"></i><span class="sidebar-label">Assets</span></div>
+                <div class="sidebar-item" onclick="goTo('portfolio.html')"><i class="fas fa-chart-pie"></i><span class="sidebar-label">Portfolio</span></div>
+            </div>
+
+            <div class="sidebar-section">
+                <div class="section-title"><i class="fas fa-screwdriver-wrench"></i> Tools</div>
+                <div class="sidebar-item" onclick="goTo('swap.html')"><i class="fas fa-arrows-h"></i><span class="sidebar-label">Swap</span></div>
+                <div class="sidebar-item" onclick="goTo('calculator.html')"><i class="fas fa-calculator"></i><span class="sidebar-label">Calculator</span></div>
+                <div class="sidebar-item" onclick="goTo('alerts.html')"><i class="fas fa-bell"></i><span class="sidebar-label">Alerts</span></div>
+                <div class="sidebar-item active" data-section="data"><i class="fas fa-wifi"></i><span class="sidebar-label">Data Sales</span></div>
+            </div>
+
+            <div class="sidebar-section">
+                <div class="section-title"><i class="fas fa-history"></i> History</div>
+                <div class="sidebar-item" onclick="goTo('history.html')"><i class="fas fa-clock-rotate-left"></i><span class="sidebar-label">History</span></div>
+                <div class="sidebar-item" onclick="goTo('statements.html')"><i class="fas fa-receipt"></i><span class="sidebar-label">Statements</span></div>
+            </div>
+
+            <div class="sidebar-section">
+                <div class="section-title"><i class="fas fa-cog"></i> Settings</div>
+                <div class="sidebar-item" onclick="goTo('preferences.html')"><i class="fas fa-sliders"></i><span class="sidebar-label">Preferences</span></div>
+                <div class="sidebar-item" onclick="goTo('security.html')"><i class="fas fa-shield-halved"></i><span class="sidebar-label">Security</span></div>
+                <div class="sidebar-item" onclick="goTo('help.html')"><i class="fas fa-question-circle"></i><span class="sidebar-label">Help</span></div>
+            </div>
+
+            <div class="sidebar-controls">
+                <div class="ctrl-icon" id="sidebarModeIcon"><i class="fas fa-border-all"></i></div>
+            </div>
+        </div>
+
+        <!-- CONTENT AREA -->
+        <div class="content-area">
+            <div class="content-header">
+                <h1><i class="fas fa-wifi"></i> Data Sales</h1>
+                <p>Purchase mobile data bundles and manage your subscriptions</p>
+            </div>
+
+            <div class="content-scroll">
+                <div class="content-wrapper">
+                <!-- Phone Number Section -->
+                <div class="section">
+                    <div class="input-group">
+                        <div class="input-label">Phone Number</div>
+                        <input type="tel" class="input-field" id="phoneInput" placeholder="0701234567" maxlength="11">
+                    </div>
+                </div>
+
+                <!-- Network Selection -->
+                <div class="section">
+                    <div class="section-label">Choose Your Network Provider</div>
+                    <div class="network-grid" id="networkGrid">
+                        <div class="network-card" data-network="mtn">
+                            <div class="network-logo">
+                                <img src="https://raw.githubusercontent.com/josephajibodu/utility-providers-assets/main/network-providers/mtn.svg" alt="MTN" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22%3E%3Crect fill=%22%23FFD700%22 width=%22100%22 height=%22100%22/%3E%3Ctext x=%2250%22 y=%2260%22 font-size=%2240%22 text-anchor=%22middle%22 font-weight=%22bold%22%3EMTN%3C/text%3E%3C/svg%3E'">
+                            </div>
+                            <div class="network-name">MTN</div>
+                        </div>
+
+                        <div class="network-card" data-network="glo">
+                            <div class="network-logo">
+                                <img src="https://raw.githubusercontent.com/josephajibodu/utility-providers-assets/main/network-providers/glo.svg" alt="Glo" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22%3E%3Crect fill=%22%2300AA00%22 width=%22100%22 height=%22100%22/%3E%3Ctext x=%2250%22 y=%2260%22 font-size=%2235%22 text-anchor=%22middle%22 font-weight=%22bold%22 fill=%22%23fff%22%3EGLO%3C/text%3E%3C/svg%3E'">
+                            </div>
+                            <div class="network-name">Glo</div>
+                        </div>
+
+                        <div class="network-card" data-network="airtel">
+                            <div class="network-logo">
+                                <img src="https://raw.githubusercontent.com/josephajibodu/utility-providers-assets/main/network-providers/airtel.svg" alt="Airtel" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22%3E%3Crect fill=%22%23FF0000%22 width=%22100%22 height=%22100%22/%3E%3Ctext x=%2250%22 y=%2260%22 font-size=%2230%22 text-anchor=%22middle%22 font-weight=%22bold%22 fill=%22%23fff%22%3EAirtel%3C/text%3E%3C/svg%3E'">
+                            </div>
+                            <div class="network-name">Airtel</div>
+                        </div>
+
+                        <div class="network-card" data-network="9mobile">
+                            <div class="network-logo">
+                                <img src="https://raw.githubusercontent.com/josephajibodu/utility-providers-assets/main/network-providers/9mobile.svg" alt="9mobile" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22%3E%3Crect fill=%22%23006BB3%22 width=%22100%22 height=%22100%22/%3E%3Ctext x=%2250%22 y=%2260%22 font-size=%2238%22 text-anchor=%22middle%22 font-weight=%22bold%22 fill=%22%23fff%22%3E9%3C/text%3E%3C/svg%3E'">
+                            </div>
+                            <div class="network-name">9mobile</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Data Bundles -->
+                <div class="section">
+                    <div class="section-label">Pick Your Data Plan</div>
+                    <div class="bundles-grid" id="bundlesGrid">
+                        <!-- Bundles will be populated here based on network selection -->
+                        <div style="grid-column: 1/-1; text-align: center; color: var(--text-tertiary); padding: 40px 20px;">
+                            <i class="fas fa-info-circle"></i> Select a network to view available bundles
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Automation Section -->
+                <div class="section">
+                    <div class="section-label">Set Up Automatic Renewal (Optional)</div>
+                    <div class="automation-card">
+                        <div class="automation-title">
+                            <i class="fas fa-calendar-alt"></i> Schedule Purchase
+                        </div>
+                        <div class="automation-toggle">
+                            <div class="toggle-switch" id="automateToggle"></div>
+                            <span class="toggle-label">Enable Auto-Purchase</span>
+                        </div>
+
+                        <div class="schedule-fields" id="scheduleFields">
+                            <div class="input-group">
+                                <div class="input-label">Frequency</div>
+                                <select class="input-field" id="frequencySelect" style="cursor: pointer;">
+                                    <option value="">Select frequency</option>
+                                    <option value="daily">Daily</option>
+                                    <option value="weekly">Weekly</option>
+                                    <option value="monthly">Monthly</option>
+                                </select>
+                            </div>
+
+                            <div class="input-group">
+                                <div class="input-label">Preferred Time</div>
+                                <input type="time" class="input-field" id="timeInput">
+                            </div>
+
+                            <div class="input-group">
+                                <div class="input-label">Starting Date</div>
+                                <input type="date" class="input-field" id="dateInput">
+                            </div>
+
+                            <div class="input-group">
+                                <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 13px; color: var(--text-secondary);">
+                                    <input type="checkbox" id="autoRenewCheckbox" style="width: 18px; height: 18px; cursor: pointer;">
+                                    Auto-renew when data expires
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="section">
+                    <div class="button-group">
+                        <button class="btn btn-secondary" id="cancelBtn">Reset</button>
+                        <button class="btn btn-primary" id="purchaseBtn" disabled>Purchase Data</button>
+                    </div>
+                </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Data bundles for each network
+const dataBundles = {
+    mtn: [
+        { data: '100MB', validity: '1 day', price: '₦50' },
+        { data: '500MB', validity: '7 days', price: '₦200' },
+        { data: '1GB', validity: '30 days', price: '₦500' },
+        { data: '2GB', validity: '30 days', price: '₦900' },
+        { data: '5GB', validity: '30 days', price: '₦2,000' },
+        { data: '10GB', validity: '30 days', price: '₦3,500' },
+    ],
+    glo: [
+        { data: '100MB', validity: '1 day', price: '₦50' },
+        { data: '500MB', validity: '7 days', price: '₦180' },
+        { data: '1GB', validity: '30 days', price: '₦450' },
+        { data: '2GB', validity: '30 days', price: '₦850' },
+        { data: '5GB', validity: '30 days', price: '₦1,800' },
+        { data: '10GB', validity: '30 days', price: '₦3,000' },
+    ],
+    airtel: [
+        { data: '100MB', validity: '1 day', price: '₦50' },
+        { data: '500MB', validity: '7 days', price: '₦200' },
+        { data: '1GB', validity: '30 days', price: '₦480' },
+        { data: '2GB', validity: '30 days', price: '₦950' },
+        { data: '5GB', validity: '30 days', price: '₦2,100' },
+        { data: '10GB', validity: '30 days', price: '₦3,800' },
+    ],
+    '9mobile': [
+        { data: '100MB', validity: '1 day', price: '₦50' },
+        { data: '500MB', validity: '7 days', price: '₦200' },
+        { data: '1GB', validity: '30 days', price: '₦500' },
+        { data: '2GB', validity: '30 days', price: '₦900' },
+        { data: '5GB', validity: '30 days', price: '₦2,000' },
+        { data: '10GB', validity: '30 days', price: '₦3,500' },
+    ]
+};
+
+let selectedNetwork = null;
+let selectedBundle = null;
+
+// Network selection
+document.querySelectorAll('.network-card').forEach(card => {
+    card.addEventListener('click', () => {
+        document.querySelectorAll('.network-card').forEach(c => c.classList.remove('selected'));
+        card.classList.add('selected');
+        selectedNetwork = card.dataset.network;
+        displayBundles();
+        updatePurchaseButton();
+    });
+});
+
+// Display bundles based on selected network
+function displayBundles() {
+    const bundlesGrid = document.getElementById('bundlesGrid');
+    if (!selectedNetwork) return;
+
+    const bundles = dataBundles[selectedNetwork];
+    bundlesGrid.innerHTML = bundles.map((bundle, index) => `
+        <div class="bundle-card" data-index="${index}">
+            <div class="bundle-data">${bundle.data}</div>
+            <div class="bundle-validity">${bundle.validity}</div>
+            <div class="bundle-price">${bundle.price}</div>
+        </div>
+    `).join('');
+
+    document.querySelectorAll('.bundle-card').forEach(card => {
+        card.addEventListener('click', () => {
+            document.querySelectorAll('.bundle-card').forEach(c => c.classList.remove('selected'));
+            card.classList.add('selected');
+            selectedBundle = card.dataset.index;
+            updatePurchaseButton();
+        });
+    });
+}
+
+// Automate toggle
+document.getElementById('automateToggle').addEventListener('click', function() {
+    this.classList.toggle('on');
+    document.getElementById('scheduleFields').classList.toggle('show');
+});
+
+// Update purchase button state
+function updatePurchaseButton() {
+    const phoneInput = document.getElementById('phoneInput').value;
+    const btn = document.getElementById('purchaseBtn');
+    btn.disabled = !(phoneInput && selectedNetwork && selectedBundle !== null);
+}
+
+// Event listeners for form validation
+document.getElementById('phoneInput').addEventListener('input', updatePurchaseButton);
+
+// Purchase button
+document.getElementById('purchaseBtn').addEventListener('click', () => {
+    const phone = document.getElementById('phoneInput').value;
+    const network = selectedNetwork;
+    const bundleIndex = selectedBundle;
+    const isAutomated = document.getElementById('automateToggle').classList.contains('on');
+    
+    const bundle = dataBundles[network][bundleIndex];
+    
+    let message = `✓ Purchasing ${bundle.data} (${bundle.price}) for ${phone} on ${network.toUpperCase()}`;
+    
+    if (isAutomated) {
+        const frequency = document.getElementById('frequencySelect').value;
+        const time = document.getElementById('timeInput').value;
+        const date = document.getElementById('dateInput').value;
+        
+        message += `\n✓ Scheduled for ${frequency} starting ${date} at ${time}`;
+        if (document.getElementById('autoRenewCheckbox').checked) {
+            message += '\n✓ Auto-renewal enabled';
+        }
+    }
+    
+    alert(message + '\n\nThis is a frontend demo. No actual purchase will be made.');
+    resetForm();
+});
+
+// Reset button
+document.getElementById('cancelBtn').addEventListener('click', resetForm);
+
+function resetForm() {
+    document.getElementById('phoneInput').value = '';
+    document.querySelectorAll('.network-card').forEach(c => c.classList.remove('selected'));
+    document.querySelectorAll('.bundle-card').forEach(c => c.classList.remove('selected'));
+    document.getElementById('automateToggle').classList.remove('on');
+    document.getElementById('scheduleFields').classList.remove('show');
+    document.getElementById('frequencySelect').value = '';
+    document.getElementById('timeInput').value = '';
+    document.getElementById('dateInput').value = '';
+    document.getElementById('autoRenewCheckbox').checked = false;
+    selectedNetwork = null;
+    selectedBundle = null;
+    displayBundles();
+    updatePurchaseButton();
+}
+
+// Theme switching
+function loadTheme() {
+    const theme = localStorage.getItem('theme') || 'Dark';
+    applyTheme(theme);
+}
+
+// Function to apply theme (convert preference name to CSS class)
+function applyTheme(themeName) {
+    let themeClass = '';
+    
+    if (themeName === 'Light') {
+        themeClass = 'theme-light';
+    } else if (themeName === 'Blue') {
+        themeClass = 'theme-dark-blue';
+    } else if (themeName === 'Purple') {
+        themeClass = 'theme-dark-purple';
+    } else if (themeName === 'Green') {
+        themeClass = 'theme-dark-green';
+    } else if (themeName === 'Ocean') {
+        themeClass = 'theme-ocean';
+    }
+    // Dark is default, no class needed
+    
+    document.body.classList.remove('theme-light', 'theme-dark-blue', 'theme-dark-purple', 'theme-dark-green', 'theme-ocean');
+    if (themeClass) {
+        document.body.classList.add(themeClass);
+    }
+}
+
+// Sidebar navigation
+function goTo(page) {
+    window.location.href = page;
+}
+
+// Initialize
+loadTheme();
+displayBundles();
+
+// Store current theme
+let currentTheme = localStorage.getItem('theme') || 'Dark';
+
+// Listen for theme changes in real-time using storage event (works across tabs)
+window.addEventListener('storage', (event) => {
+    if (event.key === 'theme') {
+        const newTheme = event.newValue || 'Dark';
+        applyTheme(newTheme);
+        currentTheme = newTheme;
+    }
+});
+
+// Aggressive polling for same-tab changes
+setInterval(() => {
+    const newTheme = localStorage.getItem('theme') || 'Dark';
+    if (newTheme !== currentTheme) {
+        applyTheme(newTheme);
+        currentTheme = newTheme;
+    }
+}, 50);
+
+// ── mobile scroll-to-expand feature ──
+let scrollTimeout;
+const sb = document.getElementById('sidebar');
+sb.addEventListener('scroll', () => {
+    // Only on mobile (≤768px)
+    if (window.innerWidth > 768) return;
+    
+    // Clear existing timeout
+    clearTimeout(scrollTimeout);
+    
+    // Auto-expand sidebar when user scrolls
+    if (!sb.classList.contains('expanded')) {
+        sb.classList.add('expanded');
+    }
+    
+    // Keep it expanded for a bit, then collapse back if not hovering
+    scrollTimeout = setTimeout(() => {
+        // Only auto-collapse if not currently hovered/focused
+        if (!sb.classList.contains('hovered') && !document.activeElement.closest('.sidebar-item')) {
+            sb.classList.remove('expanded');
+        }
+    }, 1000); // Collapse after 1 second of no scrolling
+}, { passive: true });
+</script>
+</body>
+</html>

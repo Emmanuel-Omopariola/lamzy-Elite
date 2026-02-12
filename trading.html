@@ -1,0 +1,3391 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lamzy Elite - Professional Trading Platform</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* ========================================
+           ROOT VARIABLES & THEME SYSTEM
+        ======================================== */
+        :root {
+            --bg-primary: #0a0a0a;
+            --bg-secondary: #121212;
+            --bg-tertiary: #1e1e1e;
+            --bg-hover: #2a2a2a;
+            --text-primary: #ffffff;
+            --text-secondary: #b0b0b0;
+            --text-tertiary: #808080;
+            --accent-primary: #ffffff;
+            --accent-hover: #f0f0f0;
+            --border: #2a2a2a;
+            --card-bg: #1a1a1a;
+            --green: #22c55e;
+            --red: #ef4444;
+            --orange: #f59e0b;
+        }
+
+        body.theme-light {
+            --bg-primary: #f0f2f5;
+            --bg-secondary: #ffffff;
+            --bg-tertiary: #e4e7ea;
+            --bg-hover: #dcdfe3;
+            --text-primary: #202124;
+            --text-secondary: #5f6368;
+            --text-tertiary: #80868b;
+            --accent-primary: #1a73e8;
+            --accent-hover: #1558b0;
+            --border: #dadce0;
+            --card-bg: #ffffff;
+        }
+
+        body.theme-dark-blue {
+            --bg-primary: #0d1b2a;
+            --bg-secondary: #132f4c;
+            --bg-tertiary: #1a3a52;
+            --bg-hover: #244060;
+            --text-primary: #e3f2fd;
+            --text-secondary: #90caf9;
+            --text-tertiary: #64b5f6;
+            --accent-primary: #2979f0;
+            --accent-hover: #1565c0;
+            --border: #1e3a5f;
+            --card-bg: #1a2332;
+        }
+
+        body.theme-dark-purple {
+            --bg-primary: #1a0f2e;
+            --bg-secondary: #2d1b47;
+            --bg-tertiary: #3d2757;
+            --bg-hover: #4a3466;
+            --text-primary: #f3e5f5;
+            --text-secondary: #ce93d8;
+            --text-tertiary: #ba68c8;
+            --accent-primary: #ab47bc;
+            --accent-hover: #7b1fa2;
+            --border: #4a3a66;
+            --card-bg: #2a1a42;
+        }
+
+        body.theme-dark-green {
+            --bg-primary: #0f1f1a;
+            --bg-secondary: #1b3a30;
+            --bg-tertiary: #254535;
+            --bg-hover: #2f5a45;
+            --text-primary: #e0f2f1;
+            --text-secondary: #80cbc4;
+            --text-tertiary: #4db6ac;
+            --accent-primary: #26a69a;
+            --accent-hover: #00897b;
+            --border: #3a5a4a;
+            --card-bg: #1a3428;
+        }
+
+        body.theme-ocean {
+            --bg-primary: #0a1a2e;
+            --bg-secondary: #16213e;
+            --bg-tertiary: #0f3460;
+            --bg-hover: #1a4d7a;
+            --text-primary: #eef4f9;
+            --text-secondary: #a8c5dd;
+            --text-tertiary: #7b9cbb;
+            --accent-primary: #00d4ff;
+            --accent-hover: #00a8cc;
+            --border: #1a3d5c;
+            --card-bg: #162a42;
+        }
+
+        /* ========================================
+           BASE STYLES
+        ======================================== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            overflow: hidden;
+            transition: background 0.3s ease, color 0.3s ease;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .dashboard-container {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+
+        /* ========================================
+           TOAST NOTIFICATIONS
+        ======================================== */
+        .toast-container {
+            position: fixed;
+            top: 72px;
+            right: 20px;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            pointer-events: none;
+            width: 340px;
+        }
+
+        .toast {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 14px 18px;
+            pointer-events: auto;
+            animation: toastSlideIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+            box-shadow: 0 8px 28px rgba(0,0,0,0.35);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .toast.removing {
+            animation: toastSlideOut 0.25s ease forwards;
+        }
+
+        .toast .toast-bar {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            height: 3px;
+            width: 100%;
+            animation: toastBarShrink 3s linear forwards;
+        }
+
+        .toast.success .toast-bar { background: var(--green); }
+        .toast.error   .toast-bar { background: var(--red); }
+        .toast.info    .toast-bar { background: var(--accent-primary); }
+        .toast.warning .toast-bar { background: var(--orange); }
+
+        .toast-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 4px;
+        }
+
+        .toast-header .toast-icon { font-size: 15px; }
+        .toast.success .toast-icon { color: var(--green); }
+        .toast.error   .toast-icon { color: var(--red); }
+        .toast.info    .toast-icon { color: var(--accent-primary); }
+        .toast.warning .toast-icon { color: var(--orange); }
+
+        .toast-header .toast-title {
+            font-weight: 700;
+            font-size: 13px;
+            color: var(--text-primary);
+        }
+
+        .toast-body {
+            font-size: 11.5px;
+            color: var(--text-secondary);
+            margin-left: 25px;
+            line-height: 1.45;
+        }
+
+        @keyframes toastSlideIn {
+            from { opacity: 0; transform: translateX(110%); }
+            to   { opacity: 1; transform: translateX(0); }
+        }
+        @keyframes toastSlideOut {
+            from { opacity: 1; transform: translateX(0); }
+            to   { opacity: 0; transform: translateX(110%); }
+        }
+        @keyframes toastBarShrink {
+            from { width: 100%; }
+            to   { width: 0%; }
+        }
+
+        /* ========================================
+           TOP NAVIGATION BAR
+        ======================================== */
+        .top-navbar {
+            background: var(--card-bg);
+            border-bottom: 1px solid var(--border);
+            padding: 10px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 24px;
+            position: sticky;
+            top: 0;
+            z-index: 500;
+            height: 62px;
+        }
+
+        .nav-left {
+            display: flex;
+            align-items: center;
+            gap: 18px;
+            flex: 1;
+            min-width: 0;
+        }
+
+        .nav-logo {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+            height: 34px;
+            flex-shrink: 0;
+        }
+
+        .logo-image {
+            height: 28px;
+            width: auto;
+            flex-shrink: 0;
+        }
+
+        .nav-logo-text {
+            font-size: 20px;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            background: linear-gradient(135deg, #fff 30%, #a0c4ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .pair-selector {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--bg-hover);
+            padding: 6px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 1px solid transparent;
+            flex-shrink: 0;
+        }
+
+        .pair-selector:hover {
+            background: var(--bg-tertiary);
+            border-color: var(--accent-primary);
+        }
+
+        .crypto-icon {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: bold;
+            color: #fff;
+        }
+
+        .btc-icon { background: linear-gradient(135deg, #f7931a, #e67e00); }
+        .eth-icon { background: linear-gradient(135deg, #627eea, #4b6fd6); }
+        .sol-icon { background: linear-gradient(135deg, #14f195, #00c9a7); }
+        .ada-icon { background: linear-gradient(135deg, #0033ad, #0052ff); }
+        .dot-icon { background: linear-gradient(135deg, #e04398, #c3225d); }
+
+        .price-info {
+            display: flex;
+            align-items: center;
+            gap: 18px;
+            min-width: 0;
+        }
+
+        .main-price {
+            font-size: 24px;
+            font-weight: 800;
+            font-family: 'Courier New', monospace;
+            transition: color 0.15s;
+            flex-shrink: 0;
+        }
+
+        .main-price.up { color: var(--green); }
+        .main-price.down { color: var(--red); }
+
+        .price-change {
+            font-size: 11.5px;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+
+        .price-change.positive { background: rgba(34,197,94,0.13); color: var(--green); }
+        .price-change.negative { background: rgba(239,68,68,0.13); color: var(--red); }
+
+        .stats {
+            display: flex;
+            gap: 18px;
+            font-size: 11px;
+        }
+
+        .stat-item { display: flex; flex-direction: column; gap: 2px; }
+
+        .stat-label {
+            color: var(--text-tertiary);
+            font-size: 9.5px;
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
+        }
+
+        .stat-value { color: var(--text-primary); font-weight: 700; font-size: 12px; }
+        .positive { color: var(--green) !important; }
+        .negative { color: var(--red) !important; }
+
+        .nav-right {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-shrink: 0;
+        }
+
+        .search-wrapper { position: relative; }
+
+        .search-icon {
+            position: absolute;
+            left: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-tertiary);
+            font-size: 12px;
+            pointer-events: none;
+        }
+
+        .search-bar {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 7px 12px 7px 32px;
+            color: var(--text-primary);
+            width: 200px;
+            font-size: 12px;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .search-bar:focus {
+            outline: none;
+            border-color: var(--accent-primary);
+            box-shadow: 0 0 0 3px rgba(25, 83, 255, 0.12);
+        }
+
+        .icon-btn {
+            width: 34px;
+            height: 34px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: var(--text-secondary);
+            transition: all 0.2s;
+            position: relative;
+            font-size: 13px;
+        }
+
+        .icon-btn:hover {
+            background: var(--bg-hover);
+            color: var(--accent-primary);
+            border-color: var(--accent-primary);
+        }
+
+        .notification-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: var(--red);
+            color: white;
+            border-radius: 50%;
+            width: 16px;
+            height: 16px;
+            font-size: 9px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            border: 2px solid var(--card-bg);
+        }
+
+        .profile {
+            width: 34px;
+            height: 34px;
+            background: linear-gradient(135deg, #2979f0, #1565c0);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            cursor: pointer;
+            font-size: 12px;
+            color: #fff;
+            transition: box-shadow 0.2s;
+        }
+
+        .profile:hover { box-shadow: 0 4px 14px rgba(41,121,240,0.45); }
+
+        /* ========================================
+           DROPDOWN PANELS (shared)
+        ======================================== */
+        .dropdown-panel {
+            position: absolute;
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            box-shadow: 0 10px 36px rgba(0,0,0,0.4);
+            z-index: 2000;
+            animation: panelIn 0.2s cubic-bezier(0.34,1.56,0.64,1);
+            min-width: 280px;
+        }
+
+        @keyframes panelIn {
+            from { opacity: 0; transform: translateY(-8px) scale(0.97); }
+            to   { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        .dropdown-panel .panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 14px 18px 10px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .dropdown-panel .panel-header strong {
+            font-size: 14px;
+            color: var(--text-primary);
+        }
+
+        .panel-close {
+            background: none;
+            border: none;
+            color: var(--text-tertiary);
+            cursor: pointer;
+            font-size: 16px;
+            padding: 2px 6px;
+            border-radius: 4px;
+            transition: background 0.15s, color 0.15s;
+        }
+
+        .panel-close:hover { background: var(--bg-hover); color: var(--text-primary); }
+
+        .panel-body { padding: 14px 18px 18px; }
+
+        /* ========================================
+           MAIN LAYOUT
+        ======================================== */
+        .main-wrapper {
+            display: flex;
+            flex: 1;
+            height: calc(100vh - 62px);
+            overflow: hidden;
+        }
+
+        /* ========================================
+           SIDEBAR
+        ======================================== */
+        .sidebar {
+            width: 68px;
+            background: var(--card-bg);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            z-index: 50;
+            transition: width 0.25s cubic-bezier(0.4,0,0.2,1);
+            overflow: hidden;
+            overflow-y: auto;
+            flex-shrink: 0;
+            height: calc(100vh - 62px);
+            max-height: calc(100vh - 62px);
+        }
+
+        /* ── width states ── */
+        .sidebar.expanded          { width: 230px; }
+        /* hover-mode: icons only at rest, expand on :hover AND on .hovered (JS fallback) */
+        .sidebar.hover-mode        { width: 68px; z-index: 100; }
+        .sidebar.hover-mode:hover,
+        .sidebar.hover-mode.hovered { width: 230px; z-index: 200; }
+
+        /* ── header ── */
+        .sidebar-header {
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding-left: 22px;
+            height: 0;
+            flex-shrink: 0;
+            overflow: hidden;
+        }
+
+        .sidebar-header-bar {
+            width: 3px;
+            height: 18px;
+            background: var(--accent-primary);
+            border-radius: 2px;
+            flex-shrink: 0;
+        }
+
+        .sidebar-header-text {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--text-primary);
+            white-space: nowrap;
+            opacity: 0;
+            transition: opacity 0.18s 0.08s;
+            display: none;
+        }
+
+        .sidebar.expanded .sidebar-header-text,
+        .sidebar.hover-mode:hover .sidebar-header-text,
+        .sidebar.hover-mode.hovered .sidebar-header-text { opacity: 1; }
+
+        /* ── sections ── */
+        .sidebar-section {
+            padding: 8px 0;
+            border-bottom: 1px solid var(--border);
+            flex-shrink: 0;
+        }
+
+        .sidebar-section:last-of-type { border-bottom: none; }
+
+        .section-title {
+            padding: 5px 22px 3px;
+            font-size: 10px;
+            font-weight: 700;
+            color: var(--text-tertiary);
+            text-transform: uppercase;
+            letter-spacing: 1.1px;
+            white-space: nowrap;
+            opacity: 0;
+            transition: opacity 0.18s 0.1s;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .section-title i {
+            font-size: 14px;
+            min-width: 18px;
+            text-align: center;
+            flex-shrink: 0;
+            color: var(--accent-primary);
+            opacity: 1 !important;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .sidebar.expanded .section-title,
+        .sidebar.hover-mode:hover .section-title,
+        .sidebar.hover-mode.hovered .section-title { 
+            opacity: 1; 
+        }
+
+        /* ── nav items ── */
+        .sidebar-item {
+            width: 100%;
+            height: 40px;
+            padding: 0 22px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: color 0.2s, background 0.2s;
+            position: relative;
+            border-left: 3px solid transparent;
+        }
+
+        .sidebar-item i {
+            min-width: 18px;
+            text-align: center;
+            font-size: 15px;
+            transition: color 0.2s;
+            flex-shrink: 0;
+            opacity: 1 !important;
+            display: inline-block !important;
+        }
+
+        .sidebar-label {
+            font-size: 13px;
+            font-weight: 500;
+            white-space: nowrap;
+            opacity: 0;
+            transition: opacity 0.18s 0.1s;
+        }
+
+        .sidebar.expanded .sidebar-label,
+        .sidebar.hover-mode:hover .sidebar-label,
+        .sidebar.hover-mode.hovered .sidebar-label { opacity: 1; }
+
+        .sidebar-item:hover {
+            color: var(--text-primary);
+            background: var(--bg-hover);
+            border-left-color: var(--accent-primary);
+        }
+
+        .sidebar-item.active {
+            color: var(--accent-primary);
+            background: rgba(41,121,240,0.08);
+            border-left-color: var(--accent-primary);
+        }
+
+        .sidebar-item.active i { color: var(--accent-primary); }
+
+        /* ── bottom control panel (always visible) ── */
+        .sidebar-controls {
+            margin-top: auto;
+            flex-shrink: 0;
+            border-top: 1px solid var(--border);
+            background: var(--bg-hover);
+            overflow: hidden;
+        }
+
+        /* collapsed icon: a small gear icon centred */
+        .sidebar-controls .ctrl-icon {
+            width: 68px;
+            height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-tertiary);
+            font-size: 15px;
+            cursor: pointer;
+            flex-shrink: 0;
+            transition: color 0.2s;
+            position: relative;
+        }
+
+        .sidebar-controls .ctrl-icon:hover { color: var(--accent-primary); }
+
+        /* Mode selector popup (appears when collapsed icon is clicked) */
+        .sidebar-mode-menu {
+            position: fixed;
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 8px 0;
+            min-width: 160px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+            z-index: 300;
+            display: none;
+            bottom: auto;
+            left: 8px;
+            top: auto;
+        }
+
+        .sidebar-mode-menu.show {
+            display: block;
+            animation: slideUp 0.2s ease;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(8px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .sidebar-mode-menu-item {
+            padding: 10px 14px;
+            font-size: 12px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: background 0.15s, color 0.15s;
+            white-space: nowrap;
+        }
+
+        .sidebar-mode-menu-item:hover {
+            background: var(--bg-hover);
+            color: var(--text-primary);
+        }
+
+        .sidebar-mode-menu-item.active {
+            background: rgba(25, 83, 255, 0.1);
+            color: var(--accent-primary);
+            font-weight: 600;
+        }
+
+        .sidebar-mode-menu-item i {
+            font-size: 13px;
+            min-width: 14px;
+            text-align: center;
+        }
+
+        /* expanded panel body */
+        .sidebar-controls .ctrl-panel {
+            padding: 14px 18px 16px;
+            opacity: 0;
+            transition: opacity 0.18s 0.08s;
+            /* keep it in flow but invisible when collapsed */
+            min-height: 0;
+        }
+
+        .sidebar.expanded .sidebar-controls .ctrl-panel,
+        .sidebar.hover-mode:hover .sidebar-controls .ctrl-panel,
+        .sidebar.hover-mode.hovered .sidebar-controls .ctrl-panel { opacity: 1; }
+
+        /* hide the standalone icon when expanded */
+        .sidebar.expanded .sidebar-controls .ctrl-icon,
+        .sidebar.hover-mode:hover .sidebar-controls .ctrl-icon,
+        .sidebar.hover-mode.hovered .sidebar-controls .ctrl-icon { display: none; }
+
+        .ctrl-panel-title {
+            font-size: 10px;
+            font-weight: 700;
+            color: var(--text-tertiary);
+            margin-bottom: 10px;
+            letter-spacing: 0.3px;
+        }
+
+        .ctrl-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 6px 0;
+            cursor: pointer;
+        }
+
+        .ctrl-row input[type="radio"] {
+            width: 15px;
+            height: 15px;
+            accent-color: var(--accent-primary);
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+
+        .ctrl-row label {
+            font-size: 12.5px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            white-space: nowrap;
+            transition: color 0.15s;
+            user-select: none;
+        }
+
+        .ctrl-row:hover label { color: var(--text-primary); }
+
+        .ctrl-row input[type="radio"]:checked + label {
+            color: var(--accent-primary);
+            font-weight: 600;
+        }
+
+        /* ── scrollbar ── */
+        .sidebar::-webkit-scrollbar { width: 6px; }
+        .sidebar::-webkit-scrollbar-track { background: transparent; }
+        .sidebar::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+        .sidebar::-webkit-scrollbar-thumb:hover { background: var(--text-tertiary); }
+
+        /* ========================================
+           CHART SECTION
+        ======================================== */
+        .chart-section {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: var(--bg-primary);
+            overflow: hidden;
+            min-width: 0;
+        }
+
+        .chart-controls {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 18px;
+            border-bottom: 1px solid var(--border);
+            background: var(--card-bg);
+            flex-shrink: 0;
+            gap: 12px;
+        }
+
+        .controls-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .controls-left .pair-label {
+            color: var(--text-tertiary);
+            font-size: 12px;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 3px;
+            background: var(--bg-hover);
+            padding: 3px;
+            border-radius: 6px;
+        }
+
+        .btn-group button {
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            padding: 5px 11px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 700;
+            transition: all 0.15s;
+            white-space: nowrap;
+        }
+
+        .btn-group button:hover { background: var(--bg-tertiary); color: var(--text-primary); }
+
+        .btn-group button.active {
+            background: var(--accent-primary);
+            color: #000;
+            box-shadow: 0 1px 6px rgba(41,121,240,0.35);
+        }
+
+        .indicators-btn {
+            padding: 5px 12px;
+            background: var(--bg-hover);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-weight: 700;
+            font-size: 12px;
+            transition: all 0.15s;
+            white-space: nowrap;
+        }
+
+        .indicators-btn:hover { border-color: var(--accent-primary); color: var(--accent-primary); }
+
+        .chart-container {
+            flex: 1;
+            position: relative;
+            background: var(--bg-primary);
+            overflow: hidden;
+            cursor: crosshair;
+            min-height: 0;
+        }
+
+        #tradingCanvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+
+        /* Crosshairs – absolutely positioned inside chart-container */
+        .crosshair-v, .crosshair-h {
+            position: absolute;
+            pointer-events: none;
+            z-index: 4;
+            display: none;
+        }
+
+        .crosshair-v {
+            width: 1px;
+            top: 0;
+            bottom: 0;
+            background: rgba(41,121,240,0.45);
+        }
+
+        .crosshair-h {
+            height: 1px;
+            left: 0;
+            right: 0;
+            background: rgba(41,121,240,0.45);
+        }
+
+        /* Tooltip – absolutely inside chart-container */
+        .chart-tooltip {
+            position: absolute;
+            background: rgba(15,18,24,0.95);
+            color: #fff;
+            padding: 12px 14px;
+            border-radius: 8px;
+            font-size: 11px;
+            pointer-events: none;
+            z-index: 10;
+            display: none;
+            border: 1px solid rgba(255,255,255,0.12);
+            font-family: 'Courier New', monospace;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.5);
+            min-width: 150px;
+            white-space: nowrap;
+        }
+
+        .tooltip-time {
+            font-weight: 700;
+            color: #7cacf0;
+            margin-bottom: 7px;
+            font-size: 11.5px;
+        }
+
+        .tooltip-grid {
+            display: grid;
+            grid-template-columns: 28px 1fr;
+            gap: 3px 8px;
+            font-size: 11px;
+        }
+
+        .tooltip-grid .lbl { color: #777; }
+        .tooltip-grid .val { text-align: right; }
+
+        .tooltip-change {
+            border-top: 1px solid rgba(255,255,255,0.1);
+            margin-top: 7px;
+            padding-top: 7px;
+            font-weight: 700;
+            font-size: 11.5px;
+            text-align: right;
+        }
+
+        /* Price label on Y-axis at crosshair */
+        .crosshair-price-label {
+            position: absolute;
+            right: 4px;
+            z-index: 5;
+            display: none;
+            background: rgba(41,121,240,0.92);
+            color: #fff;
+            font-size: 10.5px;
+            font-weight: 700;
+            font-family: 'Courier New', monospace;
+            padding: 2px 6px;
+            border-radius: 4px;
+            white-space: nowrap;
+            pointer-events: none;
+        }
+
+        .bottom-controls {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px 18px;
+            border-top: 1px solid var(--border);
+            background: var(--card-bg);
+            flex-shrink: 0;
+            gap: 12px;
+        }
+
+        .time-display {
+            color: var(--text-tertiary);
+            font-family: 'Courier New', monospace;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        /* ========================================
+           ORDER BOOK
+        ======================================== */
+        .order-book {
+            width: 290px;
+            background: var(--card-bg);
+            border-left: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
+            overflow: hidden;
+        }
+
+        .order-tabs {
+            display: flex;
+            border-bottom: 1px solid var(--border);
+            flex-shrink: 0;
+        }
+
+        .order-tab {
+            flex: 1;
+            padding: 12px 10px;
+            font-size: 12.5px;
+            background: transparent;
+            border: none;
+            color: var(--text-tertiary);
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            transition: all 0.2s;
+            font-weight: 700;
+        }
+
+        .order-tab:hover { color: var(--text-primary); background: var(--bg-hover); }
+        .order-tab.active { color: var(--accent-primary); border-bottom-color: var(--accent-primary); }
+
+        .order-controls {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px 14px;
+            border-bottom: 1px solid var(--border);
+            flex-shrink: 0;
+        }
+
+        .order-filters { display: flex; gap: 6px; }
+
+        .order-filters button {
+            padding: 4px 10px;
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+            border-radius: 4px;
+            font-size: 11px;
+            cursor: pointer;
+            transition: all 0.15s;
+            font-weight: 700;
+        }
+
+        .order-filters button.active {
+            background: var(--accent-primary);
+            border-color: var(--accent-primary);
+            color: #000;
+        }
+
+        .order-headers {
+            display: flex;
+            padding: 8px 14px;
+            border-bottom: 1px solid var(--border);
+            font-size: 10px;
+            color: var(--text-tertiary);
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            flex-shrink: 0;
+        }
+
+        .order-headers > div { flex: 1; }
+        .order-headers > div:last-child { text-align: right; }
+
+        .order-list {
+            flex: 1;
+            overflow-y: auto;
+            min-height: 0;
+        }
+
+        .asks-list { display: flex; flex-direction: column-reverse; }
+
+        .order-row {
+            display: flex;
+            padding: 4px 14px;
+            font-size: 11px;
+            position: relative;
+            cursor: pointer;
+            transition: background 0.12s;
+            font-family: 'Courier New', monospace;
+        }
+
+        .order-row:hover { background: rgba(255,255,255,0.06); }
+
+        .order-row .vol-bar {
+            position: absolute;
+            inset: 0;
+            z-index: 0;
+            transition: width 0.25s;
+        }
+
+        .order-row.ask .vol-bar { background: linear-gradient(90deg, transparent, rgba(239,68,68,0.13)); }
+        .order-row.bid .vol-bar { background: linear-gradient(90deg, transparent, rgba(34,197,94,0.13)); }
+
+        .order-row > div { flex: 1; position: relative; z-index: 1; }
+        .order-row > div:last-child { text-align: right; }
+
+        .order-row.ask .price { color: var(--red); font-weight: 700; }
+        .order-row.bid .price { color: var(--green); font-weight: 700; }
+
+        .current-price-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 9px 14px;
+            background: linear-gradient(90deg, rgba(239,68,68,0.08), transparent);
+            border-top: 1px solid rgba(239,68,68,0.25);
+            border-bottom: 1px solid rgba(239,68,68,0.25);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            flex-shrink: 0;
+        }
+
+        .current-price-row .cp-left {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .current-price-row .cp-number {
+            font-weight: 800;
+            font-size: 16px;
+            font-family: 'Courier New', monospace;
+        }
+
+        .cp-number.up { color: var(--green); }
+        .cp-number.down { color: var(--red); }
+
+        .spread-label { font-size: 10px; color: var(--text-tertiary); }
+
+        /* Recent Trades list */
+        .trade-row {
+            display: flex;
+            padding: 4px 14px;
+            font-size: 11px;
+            font-family: 'Courier New', monospace;
+            border-bottom: 1px solid rgba(255,255,255,0.04);
+        }
+
+        .trade-row > div { flex: 1; }
+        .trade-row > div:last-child { text-align: right; color: var(--text-tertiary); }
+        .trade-row.buy-trade .price { color: var(--green); font-weight: 700; }
+        .trade-row.sell-trade .price { color: var(--red); font-weight: 700; }
+
+        /* ========================================
+           TRADING PANEL
+        ======================================== */
+        .trading-panel {
+            width: 310px;
+            background: var(--card-bg);
+            border-left: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+            flex-shrink: 0;
+        }
+
+        .trading-panel::-webkit-scrollbar { width: 4px; }
+        .trading-panel::-webkit-scrollbar-track { background: transparent; }
+        .trading-panel::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+        .panel-top {
+            padding: 18px 18px 0;
+            flex-shrink: 0;
+        }
+
+        .panel-title {
+            font-size: 16px;
+            font-weight: 800;
+            margin-bottom: 16px;
+            background: linear-gradient(135deg, var(--accent-primary), #7fb3ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .trade-type-tabs {
+            display: flex;
+            gap: 4px;
+            margin-bottom: 18px;
+            background: var(--bg-hover);
+            padding: 3px;
+            border-radius: 8px;
+        }
+
+        .trade-type-tab {
+            flex: 1;
+            padding: 8px;
+            background: transparent;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            text-align: center;
+            font-size: 12.5px;
+            font-weight: 700;
+            transition: all 0.15s;
+            color: var(--text-secondary);
+        }
+
+        .trade-type-tab:hover { background: var(--bg-tertiary); color: var(--text-primary); }
+
+        .trade-type-tab.active {
+            background: var(--accent-primary);
+            color: #000;
+            box-shadow: 0 2px 8px rgba(41,121,240,0.3);
+        }
+
+        .input-group { margin-bottom: 14px; }
+
+        .input-label {
+            font-size: 11px;
+            color: var(--text-tertiary);
+            margin-bottom: 6px;
+            display: flex;
+            justify-content: space-between;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .input-label .input-label-right {
+            color: var(--accent-primary);
+            font-weight: 700;
+            cursor: pointer;
+            text-transform: none;
+            letter-spacing: 0;
+        }
+
+        .input-label .input-label-right:hover { text-decoration: underline; }
+
+        .input-field {
+            width: 100%;
+            background: var(--bg-hover);
+            border: 2px solid var(--border);
+            border-radius: 7px;
+            padding: 10px 12px;
+            color: var(--text-primary);
+            font-size: 15px;
+            font-weight: 700;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            font-family: 'Courier New', monospace;
+        }
+
+        .input-field:focus {
+            outline: none;
+            border-color: var(--accent-primary);
+            box-shadow: 0 0 0 3px rgba(41,121,240,0.12);
+        }
+
+        .input-field:disabled { opacity: 0.55; cursor: default; }
+
+        .slider-wrap { position: relative; margin: 10px 0 4px; }
+
+        input[type="range"].slider {
+            -webkit-appearance: none;
+            width: 100%;
+            height: 5px;
+            border-radius: 3px;
+            background: var(--bg-hover);
+            outline: none;
+            cursor: pointer;
+        }
+
+        input[type="range"].slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: var(--accent-primary);
+            cursor: pointer;
+            box-shadow: 0 0 8px rgba(41,121,240,0.5);
+        }
+
+        .pct-ticks {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 6px;
+        }
+
+        .pct-tick {
+            font-size: 10px;
+            color: var(--text-tertiary);
+            font-weight: 600;
+            cursor: pointer;
+            padding: 2px 4px;
+            border-radius: 3px;
+            transition: color 0.15s, background 0.15s;
+        }
+
+        .pct-tick:hover { color: var(--accent-primary); background: var(--bg-hover); }
+
+        .leverage-options {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 6px;
+            margin-bottom: 14px;
+        }
+
+        .leverage-btn {
+            padding: 8px 4px;
+            background: var(--bg-hover);
+            border: 2px solid var(--border);
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 700;
+            transition: all 0.15s;
+            color: var(--text-secondary);
+            text-align: center;
+        }
+
+        .leverage-btn:hover { border-color: var(--accent-primary); color: var(--accent-primary); }
+
+        .leverage-btn.active {
+            background: var(--accent-primary);
+            border-color: var(--accent-primary);
+            color: #000;
+        }
+
+        .trade-buttons {
+            padding: 0 18px 18px;
+            display: flex;
+            gap: 10px;
+            flex-shrink: 0;
+        }
+
+        .trade-button {
+            flex: 1;
+            padding: 13px 8px;
+            border: none;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 800;
+            cursor: pointer;
+            transition: box-shadow 0.2s, transform 0.1s;
+            text-transform: uppercase;
+            letter-spacing: 0.7px;
+            color: #fff;
+        }
+
+        .trade-button:active { transform: scale(0.97); }
+
+        .trade-button.buy { background: linear-gradient(135deg, #22c55e, #16a34a); }
+        .trade-button.buy:hover { box-shadow: 0 6px 18px rgba(34,197,94,0.4); }
+        .trade-button.sell { background: linear-gradient(135deg, #ef4444, #dc2626); }
+        .trade-button.sell:hover { box-shadow: 0 6px 18px rgba(239,68,68,0.4); }
+
+        .positions-section {
+            padding: 16px 18px 18px;
+            border-top: 1px solid var(--border);
+            flex-shrink: 0;
+        }
+
+        .positions-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .positions-header span:first-child { font-weight: 700; font-size: 13px; }
+        .positions-header span:last-child { font-size: 10.5px; color: var(--text-tertiary); }
+
+        .positions-empty {
+            text-align: center;
+            padding: 28px 16px;
+            color: var(--text-tertiary);
+            font-size: 12.5px;
+        }
+
+        .positions-empty i { font-size: 28px; opacity: 0.28; display: block; margin-bottom: 10px; }
+        .positions-empty .empty-sub { font-size: 10.5px; margin-top: 6px; opacity: 0.7; }
+
+        /* ========================================
+           THEME SWITCHER FAB
+        ======================================== */
+        .theme-fab {
+            position: fixed;
+            bottom: 28px;
+            right: 28px;
+            width: 50px;
+            height: 50px;
+            background: var(--card-bg);
+            border: 2px solid var(--border);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: var(--text-secondary);
+            z-index: 1990;
+            transition: all 0.2s;
+            font-size: 18px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+        }
+
+        .theme-fab:hover { border-color: var(--accent-primary); color: var(--accent-primary); }
+
+        .theme-panel {
+            position: absolute;
+            bottom: 60px;
+            right: 0;
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 18px;
+            display: none;
+            flex-direction: column;
+            z-index: 2000;
+            box-shadow: 0 10px 36px rgba(0,0,0,0.4);
+            min-width: 210px;
+        }
+
+        .theme-panel.open { display: flex; animation: panelIn 0.2s cubic-bezier(0.34,1.56,0.64,1); }
+
+        .theme-panel-title {
+            font-weight: 700;
+            font-size: 13px;
+            color: var(--text-primary);
+            margin-bottom: 14px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .theme-options {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+        }
+
+        .theme-option {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            padding: 10px 6px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.15s;
+            color: var(--text-secondary);
+            font-size: 10px;
+            text-align: center;
+            border: 2px solid transparent;
+            font-weight: 600;
+        }
+
+        .theme-option:hover { background: var(--bg-hover); }
+
+        .theme-option.active {
+            border-color: var(--accent-primary);
+            background: var(--bg-hover);
+            color: var(--accent-primary);
+        }
+
+        .theme-swatch {
+            width: 100%;
+            height: 24px;
+            border-radius: 5px;
+            border: 1px solid var(--border);
+        }
+
+        .swatch-dark    { background: #0a0a0a; }
+        .swatch-light   { background: #f0f2f5; }
+        .swatch-blue    { background: #0d1b2a; }
+        .swatch-purple  { background: #1a0f2e; }
+        .swatch-green   { background: #0f1f1a; }
+        .swatch-ocean   { background: #0a1a2e; }
+
+        /* ========================================
+           SCROLLBAR (global)
+        ======================================== */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--text-tertiary); }
+
+        /* ========================================
+           RESPONSIVE
+        ======================================== */
+        @media (max-width: 1200px) {
+            .trading-panel { width: 270px; }
+            .order-book { width: 250px; }
+            .stats { gap: 10px; }
+        }
+
+        @media (max-width: 900px) {
+            .sidebar { display: none; }
+            .stats { display: none; }
+        }
+
+        /* ========================================
+           PHONE (480px and below)
+        ======================================== */
+        @media (max-width: 480px) {
+            .dashboard-container {
+                height: 100vh;
+                overflow: hidden;
+            }
+
+            .top-navbar {
+                height: 52px;
+                padding: 6px 8px;
+                gap: 4px;
+            }
+
+            .nav-left {
+                gap: 2px;
+            }
+
+            .nav-logo-text {
+                font-size: 14px;
+            }
+
+            .pair-selector {
+                padding: 3px 6px;
+                gap: 2px;
+                font-size: 10px;
+            }
+
+            .crypto-icon {
+                width: 20px;
+                height: 20px;
+                font-size: 10px;
+            }
+
+            #pairName {
+                font-size: 10px;
+                display: none;
+            }
+
+            #pairLeverage {
+                display: none;
+            }
+
+            .price-info {
+                display: none;
+            }
+
+            .nav-right {
+                gap: 3px;
+            }
+
+            .search-wrapper {
+                width: 100px;
+            }
+
+            .search-bar {
+                width: 100px;
+                padding: 6px 10px 6px 28px;
+                font-size: 11px;
+            }
+
+            .search-icon {
+                left: 8px;
+                font-size: 11px;
+            }
+
+            .icon-btn {
+                width: 30px;
+                height: 30px;
+                font-size: 13px;
+                border-radius: 4px;
+            }
+
+            .profile {
+                width: 30px;
+                height: 30px;
+                font-size: 10px;
+            }
+
+            .main-wrapper {
+                height: calc(100vh - 52px);
+                display: flex;
+            }
+
+            .sidebar {
+                width: 32px;
+                display: flex;
+                flex-direction: column;
+                height: calc(100vh - 52px);
+                max-height: calc(100vh - 52px);
+                overflow: hidden;
+                overflow-y: auto;
+                padding-bottom: 80px;
+                transition: width 0.4s cubic-bezier(0.4,0,0.2,1);
+            }
+
+            .sidebar.expanded {
+                width: 160px;
+            }
+
+            .sidebar-item {
+                height: 38px;
+                padding: 0 16px;
+                gap: 10px;
+            }
+
+            .sidebar-section {
+                flex-shrink: 1;
+            }
+
+            .section-title {
+                padding: 0 8px;
+                font-size: 9px;
+                text-transform: uppercase;
+                font-weight: 600;
+                color: var(--text-tertiary);
+            }
+
+            .sidebar-controls {
+                display: none;
+            }
+
+            .ctrl-icon {
+                width: 32px;
+                height: 32px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                cursor: pointer;
+                color: var(--text-secondary);
+                font-size: 12px;
+            }
+
+            .sidebar-mode-menu {
+                display: none;
+            }
+
+            .ctrl-panel {
+                display: none;
+            }
+
+            .sidebar.expanded .sidebar-mode-menu {
+                display: block;
+            }
+
+            .sidebar.expanded .ctrl-panel {
+                display: block;
+            }
+
+            .chart-section {
+                flex: 1;
+                min-height: 0;
+                padding: 4px;
+                display: flex;
+                flex-direction: column;
+            }
+
+            .chart-controls {
+                padding: 6px 4px;
+                font-size: 9px;
+                gap: 3px;
+                margin-bottom: 3px;
+                overflow-x: auto;
+                flex-wrap: nowrap;
+            }
+
+            .controls-left {
+                gap: 3px;
+            }
+
+            .btn-group button {
+                padding: 2px 5px;
+                font-size: 9px;
+                white-space: nowrap;
+            }
+
+            .indicators-btn {
+                padding: 2px 6px;
+                font-size: 9px;
+                white-space: nowrap;
+            }
+
+            .chart-container {
+                flex: 1;
+                min-height: 300px;
+                border-radius: 8px;
+                background: var(--bg-secondary);
+                border: 1px solid var(--border);
+                overflow: hidden;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            .chart-container canvas {
+                width: 100%;
+                height: 100%;
+                max-width: 100%;
+                max-height: 100%;
+                display: block;
+            }
+
+            .trading-panel {
+                display: none;
+            }
+
+            .order-book {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="dashboard-container">
+
+    <!-- TOAST CONTAINER -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- TOP NAV -->
+    <div class="top-navbar">
+        <div class="nav-left">
+            <div class="nav-logo" onclick="window.location.href='dashboard.html'" style="cursor:pointer;">
+                <img src="images/logo.png" alt="Lamzy Elite" class="logo-image">
+                <span class="nav-logo-text">Lamzy<span style="-webkit-text-fill-color: var(--accent-primary);">Elite</span></span>
+            </div>
+
+            <div class="pair-selector" id="pairSelector">
+                <div class="crypto-icon eth-icon" id="pairIcon">Ξ</div>
+                <span id="pairName" style="font-weight:700;font-size:14px;">ETH/USDT</span>
+                <span id="pairLeverage" style="font-size:10px;color:var(--text-tertiary);">5x</span>
+                <i class="fas fa-chevron-down" style="font-size:9px;color:var(--text-tertiary);margin-left:2px;"></i>
+            </div>
+
+            <div class="price-info">
+                <div style="display:flex;align-items:center;gap:10px;">
+                    <span class="main-price" id="mainPrice">2,256.62</span>
+                    <span class="price-change negative" id="mainChange">-2.06%</span>
+                </div>
+                <div class="stats">
+                    <div class="stat-item">
+                        <span class="stat-label">24h High</span>
+                        <span class="stat-value positive" id="high24h">2,337.94</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">24h Low</span>
+                        <span class="stat-value negative" id="low24h">2,201.15</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">24h Vol</span>
+                        <span class="stat-value" id="volumeUSD">$8.6M</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Funding</span>
+                        <span class="stat-value negative" id="fundingRate">0.008%</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="nav-right">
+            <div class="search-wrapper">
+                <i class="fas fa-search search-icon"></i>
+                <input type="text" class="search-bar" id="searchInput" placeholder="Search pairs…">
+            </div>
+            <div class="icon-btn" id="notifBtn"><i class="fas fa-bell"></i><div class="notification-badge" id="notifBadge">3</div></div>
+            <div class="icon-btn" id="settingsBtn"><i class="fas fa-cog"></i></div>
+            <div class="profile" id="profileBtn">LE</div>
+        </div>
+    </div>
+
+    <!-- MAIN -->
+    <div class="main-wrapper">
+
+        <!-- SIDEBAR -->
+        <div class="sidebar hover-mode" id="sidebar">
+            <div class="sidebar-section">
+                <div class="sidebar-item" data-section="dashboard"><i class="fas fa-home"></i><span class="sidebar-label">Dashboard</span></div>
+            </div>
+
+            <div class="sidebar-section">
+                <div class="section-title"><i class="fas fa-chart-line"></i> Trading</div>
+                <div class="sidebar-item active" data-section="trading"><i class="fas fa-chart-line"></i><span class="sidebar-label">Trading</span></div>
+                <div class="sidebar-item" data-section="markets"><i class="fas fa-globe"></i><span class="sidebar-label">Markets</span></div>
+                <div class="sidebar-item" data-section="positions"><i class="fas fa-briefcase"></i><span class="sidebar-label">Positions</span></div>
+                <div class="sidebar-item" data-section="orders"><i class="fas fa-list"></i><span class="sidebar-label">Orders</span></div>
+                <div class="sidebar-item" data-section="signals"><i class="fas fa-signal"></i><span class="sidebar-label">Live Signals</span></div>
+            </div>
+
+            <div class="sidebar-section">
+                <div class="section-title"><i class="fas fa-briefcase"></i> Portfolio</div>
+                <div class="sidebar-item" data-section="wallet"><i class="fas fa-wallet"></i><span class="sidebar-label">Wallet</span></div>
+                <div class="sidebar-item" data-section="assets"><i class="fas fa-coins"></i><span class="sidebar-label">Assets</span></div>
+                <div class="sidebar-item" data-section="portfolio"><i class="fas fa-chart-pie"></i><span class="sidebar-label">Portfolio</span></div>
+            </div>
+
+            <div class="sidebar-section">
+                <div class="section-title"><i class="fas fa-screwdriver-wrench"></i> Tools</div>
+                <div class="sidebar-item" data-section="swap"><i class="fas fa-arrows-h"></i><span class="sidebar-label">Swap</span></div>
+                <div class="sidebar-item" data-section="calculator"><i class="fas fa-calculator"></i><span class="sidebar-label">Calculator</span></div>
+                <div class="sidebar-item" data-section="alerts"><i class="fas fa-bell"></i><span class="sidebar-label">Alerts</span></div>
+                <div class="sidebar-item" data-section="data"><i class="fas fa-wifi"></i><span class="sidebar-label">Data Sales</span></div>
+            </div>
+
+            <div class="sidebar-section">
+                <div class="section-title"><i class="fas fa-history"></i> History</div>
+                <div class="sidebar-item" data-section="history"><i class="fas fa-clock-rotate-left"></i><span class="sidebar-label">History</span></div>
+                <div class="sidebar-item" data-section="statements"><i class="fas fa-receipt"></i><span class="sidebar-label">Statements</span></div>
+            </div>
+
+            <div class="sidebar-section">
+                <div class="section-title"><i class="fas fa-cog"></i> Settings</div>
+                <div class="sidebar-item" data-section="preferences"><i class="fas fa-sliders"></i><span class="sidebar-label">Preferences</span></div>
+                <div class="sidebar-item" data-section="security"><i class="fas fa-shield-halved"></i><span class="sidebar-label">Security</span></div>
+                <div class="sidebar-item" data-section="help"><i class="fas fa-question-circle"></i><span class="sidebar-label">Help</span></div>
+            </div>
+
+            <!-- ── bottom control panel ── -->
+            <div class="sidebar-controls">
+                <!-- icon shown only when sidebar is collapsed / icon-only -->
+                <div class="ctrl-icon" id="sidebarModeIcon"><i class="fas fa-border-all"></i></div>
+                
+                <!-- Mode selector menu -->
+                <div class="sidebar-mode-menu" id="sidebarModeMenu">
+                    <div class="sidebar-mode-menu-item" data-mode="expanded">
+                        <i class="fas fa-angle-double-left"></i>
+                        <span>Expanded</span>
+                    </div>
+                    <div class="sidebar-mode-menu-item" data-mode="collapsed">
+                        <i class="fas fa-angle-double-right"></i>
+                        <span>Collapsed</span>
+                    </div>
+                    <div class="sidebar-mode-menu-item active" data-mode="hover">
+                        <i class="fas fa-arrow-right"></i>
+                        <span>Expand on hover</span>
+                    </div>
+                </div>
+                
+                <!-- full panel shown when expanded -->
+                <div class="ctrl-panel">
+                    <div class="ctrl-panel-title">Sidebar control</div>
+                    <div class="ctrl-row">
+                        <input type="radio" name="sb-mode" id="sbExpanded" value="expanded">
+                        <label for="sbExpanded">Expanded</label>
+                    </div>
+                    <div class="ctrl-row">
+                        <input type="radio" name="sb-mode" id="sbCollapsed" value="collapsed">
+                        <label for="sbCollapsed">Collapsed</label>
+                    </div>
+                    <div class="ctrl-row">
+                        <input type="radio" name="sb-mode" id="sbHover" value="hover" checked>
+                        <label for="sbHover">Expand on hover</label>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- CHART SECTION -->
+        <div class="chart-section">
+            <div class="chart-controls">
+                <div class="controls-left">
+                    <span class="pair-label" id="chartPairLabel">ETH/USDT Perpetual</span>
+                    <div class="btn-group" id="timeframeButtons">
+                        <button data-tf="1m">1m</button>
+                        <button data-tf="5m" class="active">5m</button>
+                        <button data-tf="15m">15m</button>
+                        <button data-tf="1h">1H</button>
+                        <button data-tf="4h">4H</button>
+                        <button data-tf="1d">1D</button>
+                    </div>
+                    <button class="indicators-btn" id="indicatorsBtn"><i class="fas fa-chart-bar"></i> Indicators</button>
+                </div>
+                <div style="display:flex;gap:6px;">
+                    <div class="icon-btn" style="width:30px;height:30px;" id="chartSettingsBtn"><i class="fas fa-cog"></i></div>
+                    <div class="icon-btn" style="width:30px;height:30px;" id="refreshBtn"><i class="fas fa-rotate-right"></i></div>
+                    <div class="icon-btn" style="width:30px;height:30px;" id="fullscreenBtn"><i class="fas fa-expand"></i></div>
+                </div>
+            </div>
+
+            <div class="chart-container" id="chartContainer">
+                <canvas id="tradingCanvas"></canvas>
+                <div class="crosshair-v" id="crosshairV"></div>
+                <div class="crosshair-h" id="crosshairH"></div>
+                <div class="crosshair-price-label" id="crosshairPriceLabel"></div>
+                <div class="chart-tooltip" id="chartTooltip"></div>
+            </div>
+
+            <div class="bottom-controls">
+                <div class="btn-group" id="periodButtons">
+                    <button data-period="1D">1D</button>
+                    <button data-period="1W">1W</button>
+                    <button data-period="1M" class="active">1M</button>
+                    <button data-period="3M">3M</button>
+                    <button data-period="1Y">1Y</button>
+                    <button data-period="ALL">ALL</button>
+                </div>
+                <div style="display:flex;align-items:center;gap:16px;">
+                    <span class="time-display" id="currentTime">00:00:00 UTC</span>
+                    <div class="btn-group" id="viewButtons">
+                        <button data-view="linear">Linear</button>
+                        <button data-view="log">Log</button>
+                        <button data-view="auto" class="active">Auto</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ORDER BOOK -->
+        <div class="order-book">
+            <div class="order-tabs">
+                <button class="order-tab active" data-tab="orderbook">Order Book</button>
+                <button class="order-tab" data-tab="trades">Recent Trades</button>
+            </div>
+
+            <div class="order-controls">
+                <div class="order-filters">
+                    <button class="active" data-filter="quote">ETH</button>
+                    <button data-filter="base">USDT</button>
+                </div>
+                <div class="icon-btn" style="width:26px;height:26px;font-size:10px;" id="obSizeBtn"><i class="fas fa-compress"></i></div>
+            </div>
+
+            <div id="orderbookView">
+                <div class="order-headers">
+                    <div>Price (USDT)</div>
+                    <div style="text-align:right;">Amount</div>
+                </div>
+                <div class="order-list" id="orderList">
+                    <div class="asks-list" id="asksList"></div>
+                    <div class="current-price-row">
+                        <div class="cp-left">
+                            <i class="fas fa-caret-down" id="cpCaret" style="color:var(--red);font-size:16px;"></i>
+                            <span class="cp-number down" id="orderBookPrice">2,256.62</span>
+                        </div>
+                        <span class="spread-label" id="spreadDisplay">Spread 0.03%</span>
+                    </div>
+                    <div class="bids-list" id="bidsList"></div>
+                </div>
+            </div>
+
+            <div id="tradesView" style="display:none;">
+                <div class="order-headers">
+                    <div>Price</div>
+                    <div style="text-align:center;">Amount</div>
+                    <div style="text-align:right;">Time</div>
+                </div>
+                <div class="order-list" id="tradesList"></div>
+            </div>
+        </div>
+
+        <!-- TRADING PANEL -->
+        <div class="trading-panel">
+            <div class="panel-top">
+                <div class="panel-title"><i class="fas fa-bolt"></i> Place Order</div>
+
+                <div class="trade-type-tabs" id="tradeTypeTabs">
+                    <button class="trade-type-tab active" data-type="limit">Limit</button>
+                    <button class="trade-type-tab" data-type="market">Market</button>
+                    <button class="trade-type-tab" data-type="stop">Stop</button>
+                </div>
+
+                <div class="input-group">
+                    <div class="input-label">
+                        <span>Available</span>
+                        <span style="color:var(--accent-primary);font-weight:700;text-transform:none;letter-spacing:0;">5,000 USDT</span>
+                    </div>
+                </div>
+
+                <div class="input-group" id="priceGroup">
+                    <div class="input-label">
+                        <span>Price</span>
+                        <span class="input-label-right" id="lastPriceBtn">Last Price</span>
+                    </div>
+                    <input type="number" class="input-field" id="priceInput" value="2256.62" step="0.01">
+                </div>
+
+                <!-- Stop Price (only visible in stop mode) -->
+                <div class="input-group" id="stopPriceGroup" style="display:none;">
+                    <div class="input-label"><span>Stop Price</span></div>
+                    <input type="number" class="input-field" id="stopPriceInput" placeholder="0.00" step="0.01">
+                </div>
+
+                <div class="input-group">
+                    <div class="input-label">
+                        <span>Amount</span>
+                        <span style="color:var(--text-primary);font-weight:700;text-transform:none;letter-spacing:0;" id="pairSymbol">ETH</span>
+                    </div>
+                    <input type="number" class="input-field" id="amountInput" placeholder="0.00000" step="0.001">
+                    <div class="slider-wrap">
+                        <input type="range" class="slider" min="0" max="100" value="0" id="amountSlider">
+                    </div>
+                    <div class="pct-ticks">
+                        <span class="pct-tick" data-pct="0">0%</span>
+                        <span class="pct-tick" data-pct="25">25%</span>
+                        <span class="pct-tick" data-pct="50">50%</span>
+                        <span class="pct-tick" data-pct="75">75%</span>
+                        <span class="pct-tick" data-pct="100">100%</span>
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <div class="input-label">
+                        <span>Leverage</span>
+                        <span style="color:var(--orange);font-weight:700;text-transform:none;letter-spacing:0;" id="leverageDisplay">5x</span>
+                    </div>
+                    <div class="leverage-options" id="leverageOptions">
+                        <button class="leverage-btn" data-lev="1">1x</button>
+                        <button class="leverage-btn active" data-lev="5">5x</button>
+                        <button class="leverage-btn" data-lev="10">10x</button>
+                        <button class="leverage-btn" data-lev="20">20x</button>
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <div class="input-label">
+                        <span>Total</span>
+                        <span style="color:var(--text-primary);font-weight:700;text-transform:none;letter-spacing:0;">USDT</span>
+                    </div>
+                    <input type="number" class="input-field" id="totalInput" placeholder="0.00" disabled>
+                </div>
+            </div>
+
+            <div class="trade-buttons">
+                <button class="trade-button buy" id="buyBtn"><i class="fas fa-arrow-trend-up"></i> Buy / Long</button>
+                <button class="trade-button sell" id="sellBtn"><i class="fas fa-arrow-trend-down"></i> Sell / Short</button>
+            </div>
+
+            <div class="positions-section">
+                <div class="positions-header">
+                    <span>Open Positions</span>
+                    <span>0 positions</span>
+                </div>
+                <div class="positions-empty">
+                    <i class="fas fa-inbox"></i>
+                    <div>No open positions</div>
+                    <div class="empty-sub">Start trading to see your positions here</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- THEME FAB -->
+<div class="theme-fab" id="themeFab">
+    <i class="fas fa-palette"></i>
+    <div class="theme-panel" id="themePanel">
+        <div class="theme-panel-title">Choose Theme</div>
+        <div class="theme-options">
+            <div class="theme-option active" data-theme=""><div class="theme-swatch swatch-dark"></div>Dark</div>
+            <div class="theme-option" data-theme="theme-light"><div class="theme-swatch swatch-light"></div>Light</div>
+            <div class="theme-option" data-theme="theme-dark-blue"><div class="theme-swatch swatch-blue"></div>Blue</div>
+            <div class="theme-option" data-theme="theme-dark-purple"><div class="theme-swatch swatch-purple"></div>Purple</div>
+            <div class="theme-option" data-theme="theme-dark-green"><div class="theme-swatch swatch-green"></div>Green</div>
+            <div class="theme-option" data-theme="theme-ocean"><div class="theme-swatch swatch-ocean"></div>Ocean</div>
+        </div>
+    </div>
+</div>
+
+<script>
+// ============================================================
+// TOAST SYSTEM
+// ============================================================
+function showToast(type, title, body, duration = 3000) {
+    const container = document.getElementById('toastContainer');
+    const toast = document.createElement('div');
+    toast.className = 'toast ' + type;
+    const icons = { success:'fa-check-circle', error:'fa-circle-xmark', info:'fa-circle-info', warning:'fa-triangle-exclamation' };
+    toast.innerHTML = `
+        <div class="toast-header">
+            <i class="fas ${icons[type]||icons.info} toast-icon"></i>
+            <span class="toast-title">${title}</span>
+        </div>
+        ${body ? '<div class="toast-body">'+body+'</div>' : ''}
+        <div class="toast-bar"></div>`;
+    container.appendChild(toast);
+    setTimeout(() => {
+        toast.classList.add('removing');
+        setTimeout(() => toast.remove(), 280);
+    }, duration);
+}
+
+// ============================================================
+// PAIRS DATA
+// ============================================================
+const PAIRS = {
+    'ETH/USDT': { symbol:'ETH', icon:'Ξ', iconClass:'eth-icon', basePrice:2256.62, high:2337.94, low:2201.15, vol:'$8.6M' },
+    'BTC/USDT': { symbol:'BTC', icon:'₿', iconClass:'btc-icon', basePrice:42850.00, high:43200.00, low:42100.00, vol:'$124M' },
+    'SOL/USDT': { symbol:'SOL', icon:'◎', iconClass:'sol-icon', basePrice:98.45, high:102.10, low:95.80, vol:'$320M' },
+    'ADA/USDT': { symbol:'ADA', icon:'₵', iconClass:'ada-icon', basePrice:0.52, high:0.545, low:0.505, vol:'$48M' },
+    'DOT/USDT': { symbol:'DOT', icon:'●', iconClass:'dot-icon', basePrice:7.82, high:8.15, low:7.55, vol:'$22M' }
+};
+
+// ============================================================
+// STATE
+// ============================================================
+const S = {
+    pair: 'ETH/USDT',
+    price: 2256.62,
+    prevPrice: 2256.62,
+    openPrice: 2260.00,     // session open for % calc
+    candles: [],
+    recentTrades: [],
+    orderBook: { asks:[], bids:[] },
+    leverage: 5,
+    tradeType: 'limit',     // limit | market | stop
+    // chart
+    showMA: true, showBB: false, showRSI: false, showMACD: false, showVolume: true,
+    // cached style values – read once per theme change
+    _colors: {}
+};
+
+// ============================================================
+// COLOUR CACHE  (avoids getComputedStyle in hot loop)
+// ============================================================
+function refreshColorCache() {
+    const cs = getComputedStyle(document.body);
+    S._colors = {
+        bgPrimary   : cs.getPropertyValue('--bg-primary').trim(),
+        bgSecondary : cs.getPropertyValue('--bg-secondary').trim(),
+        border      : cs.getPropertyValue('--border').trim(),
+        textTertiary: cs.getPropertyValue('--text-tertiary').trim(),
+        accent      : cs.getPropertyValue('--accent-primary').trim(),
+        green       : cs.getPropertyValue('--green').trim(),
+        red         : cs.getPropertyValue('--red').trim()
+    };
+}
+
+// ============================================================
+// PAIR SWITCHING
+// ============================================================
+function switchPair(name) {
+    const p = PAIRS[name];
+    if (!p) return;
+    S.pair = name;
+    S.price = p.basePrice;
+    S.prevPrice = p.basePrice;
+    S.openPrice = p.basePrice * (1 + (Math.random()-0.52)*0.04);
+    S.candles = [];
+    S.recentTrades = [];
+    initCandles();
+
+    document.getElementById('pairIcon').className = 'crypto-icon ' + p.iconClass;
+    document.getElementById('pairIcon').textContent = p.icon;
+    document.getElementById('pairName').textContent = name;
+    document.getElementById('chartPairLabel').textContent = name + ' Perpetual';
+    document.getElementById('pairSymbol').textContent = p.symbol;
+    document.getElementById('high24h').textContent = formatNum(p.high);
+    document.getElementById('low24h').textContent   = formatNum(p.low);
+    document.getElementById('volumeUSD').textContent = p.vol;
+
+    showToast('info', 'Pair Switched', 'Now viewing <strong>'+name+'</strong>');
+    closeAllDropdowns();
+}
+
+// ============================================================
+// CANDLE GENERATION
+// ============================================================
+function initCandles() {
+    const base = PAIRS[S.pair].basePrice;
+    let price = base * (1 + (Math.random()-0.5)*0.05);
+    const count = 60;
+    S.candles = [];
+    for (let i = 0; i < count; i++) {
+        const open = price;
+        const change = (Math.random()-0.48) * base * 0.008;
+        const close = open + change;
+        const high = Math.max(open, close) + Math.random() * base * 0.003;
+        const low  = Math.min(open, close) - Math.random() * base * 0.003;
+        S.candles.push({ open, high, low, close, volume: Math.random()*12+3 });
+        price = close;
+    }
+    S.price = S.candles[S.candles.length-1].close;
+    S.prevPrice = S.price;
+}
+
+// ============================================================
+// ORDER BOOK GENERATION
+// ============================================================
+function generateOrderBook() {
+    const step = S.price * 0.00015;
+    const asks = [], bids = [];
+    for (let i = 0; i < 14; i++) {
+        asks.push({ price: S.price + (i+1)*step, amount: Math.random()*5+0.2 });
+        bids.push({ price: S.price - (i+1)*step, amount: Math.random()*5+0.2 });
+    }
+    // normalise volume bars
+    const maxA = Math.max(...asks.map(a=>a.amount));
+    const maxB = Math.max(...bids.map(b=>b.amount));
+    asks.forEach(a => { a.volPct = (a.amount/maxA)*55+10; });
+    bids.forEach(b => { b.volPct = (b.amount/maxB)*55+10; });
+    S.orderBook = { asks: asks.reverse(), bids };
+}
+
+// ============================================================
+// RECENT TRADES GENERATION
+// ============================================================
+function pushTrade() {
+    const isBuy = Math.random() > 0.48;
+    const offset = (Math.random()-0.5) * S.price * 0.001;
+    S.recentTrades.unshift({
+        price: S.price + offset,
+        amount: (Math.random()*3+0.05).toFixed(4),
+        isBuy,
+        time: new Date()
+    });
+    if (S.recentTrades.length > 30) S.recentTrades.pop();
+}
+
+// ============================================================
+// FORMAT HELPERS
+// ============================================================
+function formatNum(n) {
+    if (n >= 1000) return n.toLocaleString('en-US', { minimumFractionDigits:2, maximumFractionDigits:2 });
+    if (n >= 1)    return n.toFixed(2);
+    return n.toFixed(4);
+}
+
+function formatTime(d) {
+    return String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');
+}
+
+// ============================================================
+// RENDER ORDER BOOK
+// ============================================================
+function renderOrderBook() {
+    const askEl = document.getElementById('asksList');
+    const bidEl = document.getElementById('bidsList');
+    let aHTML = '', bHTML = '';
+    S.orderBook.asks.forEach(a => {
+        aHTML += `<div class="order-row ask" onclick="selectPrice(${a.price})">
+            <div class="vol-bar" style="width:${a.volPct}%"></div>
+            <div class="price">${formatNum(a.price)}</div>
+            <div>${a.amount.toFixed(4)}</div></div>`;
+    });
+    S.orderBook.bids.forEach(b => {
+        bHTML += `<div class="order-row bid" onclick="selectPrice(${b.price})">
+            <div class="vol-bar" style="width:${b.volPct}%"></div>
+            <div class="price">${formatNum(b.price)}</div>
+            <div>${b.amount.toFixed(4)}</div></div>`;
+    });
+    askEl.innerHTML = aHTML;
+    bidEl.innerHTML = bHTML;
+
+    // price & spread
+    const up = S.price > S.prevPrice;
+    document.getElementById('orderBookPrice').textContent = formatNum(S.price);
+    document.getElementById('orderBookPrice').className = 'cp-number ' + (up?'up':'down');
+    document.getElementById('cpCaret').style.color = up ? 'var(--green)' : 'var(--red)';
+    document.getElementById('cpCaret').className = 'fas ' + (up?'fa-caret-up':'fa-caret-down');
+
+    const bestAsk = S.orderBook.asks[S.orderBook.asks.length-1].price;
+    const bestBid = S.orderBook.bids[0].price;
+    const spread  = ((bestAsk - bestBid)/bestBid*100).toFixed(3);
+    document.getElementById('spreadDisplay').textContent = 'Spread '+spread+'%';
+}
+
+// ============================================================
+// RENDER RECENT TRADES
+// ============================================================
+function renderTrades() {
+    const el = document.getElementById('tradesList');
+    let html = '';
+    S.recentTrades.slice(0,20).forEach(t => {
+        const mins = t.time.getMinutes(), secs = t.time.getSeconds();
+        html += `<div class="trade-row ${t.isBuy?'buy-trade':'sell-trade'}">
+            <div class="price">${formatNum(t.price)}</div>
+            <div style="text-align:center;">${t.amount}</div>
+            <div>${String(mins).padStart(2,'0')}:${String(secs).padStart(2,'0')}</div></div>`;
+    });
+    el.innerHTML = html;
+}
+
+// ============================================================
+// UPDATE TOP BAR LIVE STATS
+// ============================================================
+function updateTopBar() {
+    const up = S.price > S.prevPrice;
+    const el = document.getElementById('mainPrice');
+    el.textContent = formatNum(S.price);
+    el.className = 'main-price ' + (up?'up':'down');
+
+    const pctChange = ((S.price - S.openPrice)/S.openPrice*100);
+    const chgEl = document.getElementById('mainChange');
+    chgEl.textContent = (pctChange>=0?'+':'') + pctChange.toFixed(2) + '%';
+    chgEl.className = 'price-change ' + (pctChange>=0?'positive':'negative');
+
+    document.getElementById('priceInput').value = S.price.toFixed(S.price>=100?2:4);
+    calcTotal();
+}
+
+// ============================================================
+// CHART DRAWING  (production-optimised)
+// ============================================================
+let chartAnimId = 0;
+
+function drawChart() {
+    const canvas = document.getElementById('tradingCanvas');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    const dpr = Math.min(window.devicePixelRatio||1, 2);
+    const rect = canvas.getBoundingClientRect();
+    const W = rect.width, H = rect.height;
+
+    canvas.width  = W * dpr;
+    canvas.height = H * dpr;
+    ctx.scale(dpr, dpr);
+
+    const C = S._colors;
+    
+    // ═══════════════════════════════════════════════════════════
+    // RESPONSIVE PADDING - Minimal on mobile to maximize chart width
+    // ═══════════════════════════════════════════════════════════
+    const isMobileView = window.innerWidth <= 480;
+    const PAD = isMobileView 
+        ? { top:16, right:12, bottom:34, left:8 }  // Mobile: minimal right padding
+        : { top:16, right:72, bottom:34, left:8 }; // Desktop: standard padding
+    
+    const cW = W - PAD.left - PAD.right;
+    const cH = H - PAD.top - PAD.bottom;
+
+    // --- background ---
+    const grad = ctx.createLinearGradient(0,0,0,H);
+    grad.addColorStop(0, C.bgPrimary);
+    grad.addColorStop(1, C.bgSecondary);
+    ctx.fillStyle = grad;
+    ctx.fillRect(0,0,W,H);
+
+    // ═══════════════════════════════════════════════════════════
+    // MOBILE OPTIMIZATION: Show fewer candles for bigger sizes
+    // ═══════════════════════════════════════════════════════════
+    let displayCandles = S.candles;
+    let candleOffset = 0;
+    
+    if (isMobileView && S.candles.length > 20) {
+        // On mobile, show only last 20 candles (instead of 60)
+        // This makes each candlestick ~3x bigger!
+        candleOffset = Math.max(0, S.candles.length - 20);
+        displayCandles = S.candles.slice(candleOffset);
+    }
+
+    // --- price range ---
+    let maxP = -Infinity, minP = Infinity;
+    for (const c of displayCandles) {
+        if (c.high  > maxP) maxP = c.high;
+        if (c.low   < minP) minP = c.low;
+    }
+    const range = (maxP - minP) || 1;
+    const margin = range * 0.08;
+    maxP += margin;
+    minP -= margin;
+    const adjRange = maxP - minP;
+
+    const priceToY = p => PAD.top + cH - ((p - minP)/adjRange)*cH;
+
+    // --- grid ---
+    ctx.strokeStyle = C.border;
+    ctx.lineWidth = 0.5;
+    ctx.globalAlpha = 0.45;
+    const gridLines = 7;
+    for (let i = 0; i <= gridLines; i++) {
+        const y = PAD.top + (cH/gridLines)*i;
+        ctx.beginPath(); ctx.moveTo(PAD.left, y); ctx.lineTo(W - PAD.right, y); ctx.stroke();
+        // price label
+        const p = maxP - (adjRange/gridLines)*i;
+        ctx.globalAlpha = 0.85;
+        ctx.fillStyle = C.textTertiary;
+        ctx.font = '10px monospace';
+        ctx.textAlign = 'right';
+        ctx.fillText(formatNum(p), W - PAD.right - 4, y + 3.5);
+        ctx.globalAlpha = 0.45;
+    }
+
+    // vertical grid + time labels
+    const step = Math.max(1, Math.floor(displayCandles.length/7));
+    const candleW = cW / displayCandles.length;
+    for (let i = 0; i < displayCandles.length; i += step) {
+        const x = PAD.left + i * candleW + candleW/2;
+        ctx.beginPath(); ctx.moveTo(x, PAD.top); ctx.lineTo(x, PAD.top+cH); ctx.stroke();
+    }
+    ctx.globalAlpha = 1;
+
+    // time labels
+    ctx.fillStyle = C.textTertiary;
+    ctx.font = '9px monospace';
+    ctx.textAlign = 'center';
+    for (let i = 0; i < displayCandles.length; i += step) {
+        const x = PAD.left + i * candleW + candleW/2;
+        // simple synthetic time label
+        const mins = ((i + candleOffset) * 5) % 60;
+        const hrs  = Math.floor(((i + candleOffset) * 5)/60) % 24;
+        ctx.fillText(String(hrs).padStart(2,'0')+':'+String(mins).padStart(2,'0'), x, H - 6);
+    }
+
+    // --- Volume bars ---
+    if (S.showVolume) {
+        const maxVol = Math.max(...displayCandles.map(c=>c.volume), 1);
+        for (let i = 0; i < displayCandles.length; i++) {
+            const c = displayCandles[i];
+            const x = PAD.left + i*candleW;
+            const volH = (c.volume/maxVol)*cH*0.22;
+            ctx.fillStyle = c.close >= c.open ? 'rgba(34,197,94,0.18)' : 'rgba(239,68,68,0.18)';
+            ctx.fillRect(x + candleW*0.15, PAD.top+cH-volH, candleW*0.7, volH);
+        }
+    }
+
+    // --- Bollinger Bands ---
+    if (S.showBB && displayCandles.length > 20) {
+        const closes = displayCandles.map(c=>c.close);
+        const period = 20, stdDev = 2;
+        const bb = [];
+        for (let i = period-1; i < closes.length; i++) {
+            let sum=0;
+            for (let j=i-period+1;j<=i;j++) sum+=closes[j];
+            const sma = sum/period;
+            let v=0;
+            for (let j=i-period+1;j<=i;j++) v+=(closes[j]-sma)**2;
+            const std = Math.sqrt(v/period);
+            bb.push({ upper:sma+stdDev*std, middle:sma, lower:sma-stdDev*std });
+        }
+        
+        if (bb) {
+            ctx.strokeStyle = 'rgba(96,165,250,0.45)';
+            ctx.lineWidth = 1;
+            ctx.setLineDash([3,3]);
+            // upper
+            ctx.beginPath();
+            bb.forEach((b,i) => { const x=PAD.left+(i+20)*candleW+candleW/2; i===0?ctx.moveTo(x,priceToY(b.upper)):ctx.lineTo(x,priceToY(b.upper)); });
+            ctx.stroke();
+            // lower
+            ctx.beginPath();
+            bb.forEach((b,i) => { const x=PAD.left+(i+20)*candleW+candleW/2; i===0?ctx.moveTo(x,priceToY(b.lower)):ctx.lineTo(x,priceToY(b.lower)); });
+            ctx.stroke();
+            // fill between
+            ctx.setLineDash([]);
+            ctx.strokeStyle = 'rgba(96,165,250,0.2)';
+            ctx.beginPath();
+            bb.forEach((b,i) => { const x=PAD.left+(i+20)*candleW+candleW/2; i===0?ctx.moveTo(x,priceToY(b.middle)):ctx.lineTo(x,priceToY(b.middle)); });
+            ctx.stroke();
+        }
+    }
+
+    // --- Candles ---
+    for (let i = 0; i < displayCandles.length; i++) {
+        const c = displayCandles[i];
+        const x = PAD.left + i*candleW + candleW/2;
+        const isGreen = c.close >= c.open;
+        const color   = isGreen ? C.green : C.red;
+
+        // wick
+        ctx.strokeStyle = color;
+        ctx.lineWidth = 1.2;
+        ctx.lineCap = 'round';
+        ctx.beginPath();
+        ctx.moveTo(x, priceToY(c.high));
+        ctx.lineTo(x, priceToY(c.low));
+        ctx.stroke();
+
+        // body
+        const bodyTop  = priceToY(Math.max(c.open, c.close));
+        const bodyH    = Math.max(Math.abs(priceToY(c.close)-priceToY(c.open)), 1.8);
+        const bodyW    = Math.max(candleW*0.72, 2);
+        ctx.fillStyle  = color;
+        ctx.fillRect(x - bodyW/2, bodyTop, bodyW, bodyH);
+    }
+
+    // --- Moving Average (SMA 20) ---
+    if (S.showMA && S.candles.length > 20) {
+        ctx.strokeStyle = C.accent;
+        ctx.lineWidth = 2;
+        ctx.globalAlpha = 0.8;
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
+        ctx.beginPath();
+        for (let i = 0; i < displayCandles.length; i++) {
+            const actualIdx = i + candleOffset;
+            if (actualIdx < 19) continue;
+            let sum = 0;
+            for (let j = actualIdx-19; j <= actualIdx; j++) sum += S.candles[j].close;
+            const y = priceToY(sum/20);
+            const x = PAD.left + i*candleW + candleW/2;
+            actualIdx===19 ? ctx.moveTo(x,y) : ctx.lineTo(x,y);
+        }
+        ctx.stroke();
+        ctx.globalAlpha = 1;
+    }
+
+    // --- RSI overlay box ---
+    if (S.showRSI && S.candles.length > 14) {
+        const rsi = calcRSI(14);
+        if (rsi !== null) {
+            const boxW=108, boxH=72, bx=W-PAD.right-boxW-6, by=PAD.top+6;
+            ctx.fillStyle = 'rgba(12,14,20,0.82)';
+            ctx.beginPath();
+            ctx.roundRect(bx, by, boxW, boxH, 6);
+            ctx.fill();
+            ctx.strokeStyle = 'rgba(168,85,247,0.35)';
+            ctx.lineWidth = 1;
+            ctx.stroke();
+
+            const v = rsi[rsi.length-1];
+            const clr = v > 70 ? C.red : v < 30 ? C.green : C.accent;
+            ctx.fillStyle = clr;
+            ctx.font = 'bold 13px monospace';
+            ctx.textAlign = 'center';
+            ctx.fillText('RSI  '+v.toFixed(1), bx+boxW/2, by+26);
+            ctx.fillStyle = 'rgba(255,255,255,0.45)';
+            ctx.font = '9px monospace';
+            ctx.fillText(v>70?'OVERBOUGHT':v<30?'OVERSOLD':'NEUTRAL', bx+boxW/2, by+44);
+
+            // mini RSI line
+            ctx.strokeStyle = clr;
+            ctx.lineWidth = 1.5;
+            ctx.globalAlpha = 0.7;
+            const slice = rsi.slice(-30);
+            const rsiMin=0, rsiMax=100;
+            const rsiPadX=8, rsiPadY=50, rsiLH=16, rsiLW=boxW-16;
+            ctx.beginPath();
+            slice.forEach((r,i)=>{
+                const rx = bx+rsiPadX+(i/(slice.length-1||1))*rsiLW;
+                const ry = by+rsiPadY-(((r-rsiMin)/(rsiMax-rsiMin))*rsiLH);
+                i===0?ctx.moveTo(rx,ry):ctx.lineTo(rx,ry);
+            });
+            ctx.stroke();
+            ctx.globalAlpha = 1;
+        }
+    }
+
+    // --- MACD histogram at bottom ---
+    if (S.showMACD && S.candles.length > 26) {
+        const macd = calcMACD(12,26,9);
+        if (macd) {
+            const hH = cH*0.18;
+            const hY = PAD.top + cH - hH;
+            // zero line
+            ctx.strokeStyle = 'rgba(255,255,255,0.15)';
+            ctx.lineWidth = 0.8;
+            ctx.beginPath();
+            ctx.moveTo(PAD.left, hY+hH/2);
+            ctx.lineTo(W-PAD.right, hY+hH/2);
+            ctx.stroke();
+
+            const maxM = Math.max(...macd.hist.map(v=>Math.abs(v)), 0.001);
+            macd.hist.forEach((v,i)=>{
+                const idx = i + 26;
+                const displayIdx = idx - candleOffset;
+                if (idx >= S.candles.length || displayIdx < 0 || displayIdx >= displayCandles.length) return;
+                const x   = PAD.left + displayIdx*candleW + candleW*0.15;
+                const bH  = (Math.abs(v)/maxM)*(hH*0.45);
+                const bY  = v >= 0 ? hY+hH/2-bH : hY+hH/2;
+                ctx.fillStyle = v >= 0 ? 'rgba(34,197,94,0.55)' : 'rgba(239,68,68,0.55)';
+                ctx.fillRect(x, bY, candleW*0.7, bH);
+            });
+        }
+    }
+
+    // --- Current price dashed line ---
+    const cpY = priceToY(S.price);
+    ctx.strokeStyle = C.red;
+    ctx.lineWidth = 1.8;
+    ctx.setLineDash([4,4]);
+    ctx.shadowColor = 'rgba(239,68,68,0.4)';
+    ctx.shadowBlur  = 6;
+    ctx.beginPath();
+    ctx.moveTo(PAD.left, cpY);
+    ctx.lineTo(W - PAD.right, cpY);
+    ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.shadowBlur = 0;
+
+    // price badge
+    const badgeX = isMobileView ? PAD.left + 6 : W - PAD.right - 66;
+    ctx.fillStyle = C.red;
+    ctx.shadowColor = 'rgba(239,68,68,0.45)';
+    ctx.shadowBlur  = 8;
+    ctx.fillRect(badgeX, cpY-14, 62, 28);
+    ctx.shadowBlur = 0;
+    ctx.fillStyle = '#fff';
+    ctx.font = 'bold 12px monospace';
+    ctx.textAlign = 'center';
+    ctx.fillText(formatNum(S.price), badgeX+31, cpY+4);
+
+    // store mapping for tooltip hit-test
+    drawChart._map = { PAD, candleW, priceToY, minP, adjRange, cH, candleOffset, displayCandles };
+}
+
+// ============================================================
+// INDICATOR CALCULATIONS
+// ============================================================
+function calcRSI(period) {
+    const closes = S.candles.map(c=>c.close);
+    if (closes.length < period+1) return null;
+    const out = [];
+    for (let i = period; i < closes.length; i++) {
+        let g=0, l=0;
+        for (let j = i-period; j < i; j++) {
+            const d = closes[j+1]-closes[j];
+            d > 0 ? g+=d : l-=d;
+        }
+        const rs = l===0 ? 100 : (g/period)/(l/period);
+        out.push(100 - 100/(1+rs));
+    }
+    return out;
+}
+
+function calcMACD(fast,slow,signal) {
+    const closes = S.candles.map(c=>c.close);
+    if (closes.length < slow) return null;
+    const ema = (data, p) => {
+        const k = 2/(p+1), out = [];
+        let sum = 0;
+        for (let i=0;i<p&&i<data.length;i++) sum+=data[i];
+        out.push(sum/p);
+        for (let i=p;i<data.length;i++) out.push(data[i]*k+out[out.length-1]*(1-k));
+        return out;
+    };
+    const e12 = ema(closes, fast);
+    const e26 = ema(closes, slow);
+    // align: e12 has length closes.length-fast+1, e26 has closes.length-slow+1
+    // offset so both refer to same candle indices
+    const offset12 = fast-1, offset26 = slow-1;
+    const macdLine = [];
+    for (let i = offset26; i < closes.length; i++) {
+        macdLine.push(e12[i-offset12] - e26[i-offset26]);
+    }
+    const sigLine = ema(macdLine, signal);
+    const hist = macdLine.map((m,i) => m - (sigLine[i]||0));
+    return { macdLine, sigLine, hist };
+}
+
+function calcBB(period, stdDev) {
+    const closes = S.candles.map(c=>c.close);
+    if (closes.length < period) return null;
+    const out = [];
+    for (let i = period-1; i < closes.length; i++) {
+        let sum=0;
+        for (let j=i-period+1;j<=i;j++) sum+=closes[j];
+        const sma = sum/period;
+        let v=0;
+        for (let j=i-period+1;j<=i;j++) v+=(closes[j]-sma)**2;
+        const std = Math.sqrt(v/period);
+        out.push({ upper:sma+stdDev*std, middle:sma, lower:sma-stdDev*std });
+    }
+    return out;
+}
+
+// ============================================================
+// CHART INTERACTIVITY
+// ============================================================
+(function setupChart() {
+    const container = document.getElementById('chartContainer');
+    const crossV    = document.getElementById('crosshairV');
+    const crossH    = document.getElementById('crosshairH');
+    const tooltip   = document.getElementById('chartTooltip');
+    const priceLabel= document.getElementById('crosshairPriceLabel');
+
+    let dragging = false, dragStartX = 0;
+
+    function hide() {
+        crossV.style.display='none';
+        crossH.style.display='none';
+        tooltip.style.display='none';
+        priceLabel.style.display='none';
+    }
+
+    container.addEventListener('mouseenter', () => {
+        crossV.style.display='block';
+        crossH.style.display='block';
+    });
+
+    container.addEventListener('mouseleave', () => {
+        hide();
+        dragging = false;
+        container.style.cursor = 'crosshair';
+    });
+
+    container.addEventListener('mousedown', e => {
+        dragging = true;
+        dragStartX = e.clientX;
+        container.style.cursor = 'grabbing';
+    });
+
+    container.addEventListener('mouseup', () => {
+        dragging = false;
+        container.style.cursor = 'crosshair';
+    });
+
+    // throttled mousemove
+    let lastMove = 0;
+    container.addEventListener('mousemove', e => {
+        const now = Date.now();
+        if (now - lastMove < 16) return; // ~60 fps cap
+        lastMove = now;
+
+        const rect = container.getBoundingClientRect();
+        const mx = e.clientX - rect.left;
+        const my = e.clientY - rect.top;
+
+        // crosshairs (absolute inside container)
+        crossV.style.left = mx + 'px';
+        crossH.style.top  = my + 'px';
+
+        // price label on right edge
+        const map = drawChart._map;
+        if (map) {
+            const { minP, adjRange, cH, PAD, candleOffset, displayCandles } = map;
+            const priceAtY = minP + adjRange * (1 - (my - PAD.top)/cH);
+            priceLabel.style.display = 'block';
+            priceLabel.style.top = (my - 10) + 'px';
+            priceLabel.textContent = formatNum(priceAtY);
+
+            // tooltip candle lookup
+            const idx = Math.floor((mx - PAD.left) / map.candleW);
+            if (idx >= 0 && idx < displayCandles.length) {
+                const actualIdx = idx + candleOffset;
+                const c = displayCandles[idx];
+                const chg = c.close - c.open;
+                const chgPct = (chg/c.open*100).toFixed(2);
+                const mins = ((actualIdx)*5) % 60;
+                const hrs = ((actualIdx)*5) / 60 | 0;
+                tooltip.innerHTML =
+                    `<div class="tooltip-time">${String(hrs).padStart(2,'0')}:${String(mins).padStart(2,'0')}</div>
+                     <div class="tooltip-grid">
+                       <div class="lbl">O</div><div class="val">${formatNum(c.open)}</div>
+                       <div class="lbl">H</div><div class="val" style="color:var(--green)">${formatNum(c.high)}</div>
+                       <div class="lbl">L</div><div class="val" style="color:var(--red)">${formatNum(c.low)}</div>
+                       <div class="lbl">C</div><div class="val" style="color:${chg>=0?'var(--green)':'var(--red)'}">${formatNum(c.close)}</div>
+                     </div>
+                     <div class="tooltip-change" style="color:${chg>=0?'var(--green)':'var(--red)'}">
+                       ${chg>=0?'+':''}${formatNum(chg)} (${chgPct}%)
+                     </div>`;
+                tooltip.style.display = 'block';
+                // keep tooltip inside container
+                let tx = mx + 18, ty = my - 120;
+                if (tx + 160 > rect.width) tx = mx - 168;
+                if (ty < 0) ty = my + 12;
+                tooltip.style.left = tx + 'px';
+                tooltip.style.top  = ty + 'px';
+            }
+        }
+    });
+
+    // scroll zoom – just regenerates with more/fewer candles
+    container.addEventListener('wheel', e => {
+        e.preventDefault();
+        // zoom effect: add or remove candles from the start
+        if (e.deltaY < 0 && S.candles.length < 120) {
+            // zoom out – add older candles
+            const base = PAIRS[S.pair].basePrice;
+            const oldest = S.candles[0].open;
+            for (let i=0;i<4;i++) {
+                const chg = (Math.random()-0.48)*base*0.007;
+                S.candles.unshift({ open: oldest+chg, high: oldest+chg+Math.random()*base*0.003, low: oldest+chg-Math.random()*base*0.003, close: oldest, volume: Math.random()*10+3 });
+            }
+        } else if (e.deltaY > 0 && S.candles.length > 30) {
+            S.candles.splice(0, 3);
+        }
+        drawChart();
+    }, { passive: false });
+
+    // double-click reset
+    container.addEventListener('dblclick', () => {
+        initCandles();
+        drawChart();
+        showToast('info','Chart Reset','Candles regenerated.');
+    });
+
+    // right-click suppress
+    container.addEventListener('contextmenu', e => e.preventDefault());
+})();
+
+// ============================================================
+// SIDEBAR – three-mode controller
+// ============================================================
+(function setupSidebar() {
+    const sb = document.getElementById('sidebar');
+
+    // ── apply a mode: 'expanded' | 'collapsed' | 'hover' ──
+    function applyMode(mode) {
+        // strip everything
+        sb.classList.remove('expanded', 'hover-mode', 'hovered');
+
+        if (mode === 'expanded') {
+            sb.classList.add('expanded');
+        } else if (mode === 'hover') {
+            sb.classList.add('hover-mode');
+            // start collapsed (no .hovered)
+        }
+        // 'collapsed' → no extra class, base width 68px applies
+    }
+
+    // ── radio change ──
+    document.querySelectorAll('input[name="sb-mode"]').forEach(radio => {
+        radio.addEventListener('change', function() {
+            applyMode(this.value);
+        });
+    });
+
+    // ── hover expand / collapse (only active in hover-mode) ──
+    sb.addEventListener('mouseenter', () => {
+        if (sb.classList.contains('hover-mode')) sb.classList.add('hovered');
+    });
+    sb.addEventListener('mouseleave', () => {
+        if (sb.classList.contains('hover-mode')) sb.classList.remove('hovered');
+    });
+
+    // ── boot: honour whatever radio is checked on page load ──
+    const checked = document.querySelector('input[name="sb-mode"]:checked');
+    if (checked) applyMode(checked.value);
+
+    // ── nav item clicks ──
+    const pageMap = {
+        'dashboard': 'dashboard.html',
+        'trading': 'trading.html',
+        'markets': 'markets.html',
+        'positions': 'positions.html',
+        'orders': 'orders.html',
+        'signals': 'signals.html',
+        'wallet': 'wallet.html',
+        'assets': 'assets.html',
+        'portfolio': 'portfolio.html',
+        'swap': 'swap.html',
+        'calculator': 'calculator.html',
+        'alerts': 'alerts.html',
+        'data': 'data.html',
+        'history': 'history.html',
+        'statements': 'statements.html',
+        'preferences': 'preferences.html',
+        'security': 'security.html',
+        'help': 'help.html'
+    };
+
+    sb.querySelectorAll('.sidebar-item').forEach(item => {
+        item.addEventListener('click', () => {
+            sb.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active'));
+            item.classList.add('active');
+            const sec = item.dataset.section;
+            const page = pageMap[sec];
+            if (page) {
+                window.location.href = page;
+            }
+        });
+    });
+
+    // ── sidebar mode menu icon ──
+    const modeIcon = document.getElementById('sidebarModeIcon');
+    const modeMenu = document.getElementById('sidebarModeMenu');
+    
+    if (modeIcon && modeMenu) {
+        // toggle menu on icon click
+        modeIcon.addEventListener('click', (e) => {
+            e.stopPropagation();
+            modeMenu.classList.toggle('show');
+            
+            // position menu relative to icon when shown
+            if (modeMenu.classList.contains('show')) {
+                const rect = modeIcon.getBoundingClientRect();
+                modeMenu.style.bottom = 'auto';
+                modeMenu.style.top = (rect.top - 125) + 'px';
+                modeMenu.style.left = (rect.left + 35) + 'px';
+            }
+        });
+
+        // handle mode selection from menu
+        modeMenu.querySelectorAll('.sidebar-mode-menu-item').forEach(item => {
+            item.addEventListener('click', (e) => {
+                const mode = item.dataset.mode;
+                applyMode(mode);
+                modeMenu.classList.remove('show');
+                updateModeMenuActive(mode);
+            });
+        });
+
+        // close menu on outside click
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.sidebar-controls')) {
+                modeMenu.classList.remove('show');
+            }
+        });
+
+        // update active state on page load
+        const currentMode = sb.classList.contains('expanded') ? 'expanded' :
+                           sb.classList.contains('hover-mode') ? 'hover' : 'collapsed';
+        updateModeMenuActive(currentMode);
+    }
+
+    // helper: update active class in mode menu
+    function updateModeMenuActive(mode) {
+        modeMenu.querySelectorAll('.sidebar-mode-menu-item').forEach(item => {
+            item.classList.toggle('active', item.dataset.mode === mode);
+        });
+    }
+})();
+
+// ============================================================
+// SIDEBAR AUTO-HIDE ON SCROLL (Mobile Only)
+// ============================================================
+(function setupSidebarScroll() {
+    const sb = document.getElementById('sidebar');
+    let scrollTimeout;
+    let isAnimating = false;
+
+    sb.addEventListener('scroll', () => {
+        // Only on mobile (≤480px)
+        if (window.innerWidth > 480) return;
+        
+        // Prevent scroll event during animation
+        if (isAnimating) return;
+        
+        // Clear existing timeout
+        clearTimeout(scrollTimeout);
+        
+        // Auto-expand sidebar when user scrolls
+        if (!sb.classList.contains('expanded')) {
+            isAnimating = true;
+            sb.classList.add('expanded');
+            setTimeout(() => { isAnimating = false; }, 300);
+        }
+        
+        // Keep it expanded for a bit, then collapse back if not hovering
+        scrollTimeout = setTimeout(() => {
+            // Only auto-collapse if not currently hovered/focused
+            if (!sb.classList.contains('hovered') && !document.activeElement.closest('.sidebar-item')) {
+                isAnimating = true;
+                sb.classList.remove('expanded');
+                setTimeout(() => { isAnimating = false; }, 400);
+            }
+        }, 700); // Collapse after 700ms of no scrolling
+    }, { passive: true });
+})();
+
+// ============================================================
+// TRADING PANEL WIRING
+// ============================================================
+(function setupTrading() {
+    // Trade type tabs
+    document.getElementById('tradeTypeTabs').querySelectorAll('.trade-type-tab').forEach(tab => {
+        tab.addEventListener('click', () => {
+            document.querySelectorAll('.trade-type-tab').forEach(t => t.classList.remove('active'));
+            tab.classList.add('active');
+            S.tradeType = tab.dataset.type;
+
+            const priceGroup = document.getElementById('priceGroup');
+            const stopGroup  = document.getElementById('stopPriceGroup');
+
+            if (S.tradeType === 'market') {
+                priceGroup.style.display = 'none';
+            } else {
+                priceGroup.style.display = '';
+            }
+            stopGroup.style.display = S.tradeType === 'stop' ? '' : 'none';
+        });
+    });
+
+    // Last price button
+    document.getElementById('lastPriceBtn').addEventListener('click', () => {
+        document.getElementById('priceInput').value = S.price.toFixed(S.price>=100?2:4);
+        calcTotal();
+    });
+
+    // Amount slider
+    document.getElementById('amountSlider').addEventListener('input', function() {
+        applyPercentage(+this.value);
+    });
+
+    // Percentage tick clicks
+    document.querySelectorAll('.pct-tick').forEach(tick => {
+        tick.addEventListener('click', () => {
+            const pct = +tick.dataset.pct;
+            document.getElementById('amountSlider').value = pct;
+            applyPercentage(pct);
+        });
+    });
+
+    function applyPercentage(pct) {
+        const avail = 5000;
+        const price = parseFloat(document.getElementById('priceInput').value) || S.price;
+        const amount = (avail * pct / 100) / price;
+        document.getElementById('amountInput').value = amount > 0 ? amount.toFixed(5) : '';
+        calcTotal();
+    }
+
+    // Amount input live calc
+    document.getElementById('amountInput').addEventListener('input', calcTotal);
+    document.getElementById('priceInput').addEventListener('input', calcTotal);
+
+    // Leverage buttons
+    document.getElementById('leverageOptions').querySelectorAll('.leverage-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('.leverage-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            S.leverage = +btn.dataset.lev;
+            document.getElementById('leverageDisplay').textContent = S.leverage + 'x';
+        });
+    });
+
+    // Buy / Sell
+    document.getElementById('buyBtn').addEventListener('click', () => placeTrade('buy'));
+    document.getElementById('sellBtn').addEventListener('click', () => placeTrade('sell'));
+})();
+
+function calcTotal() {
+    const amt   = parseFloat(document.getElementById('amountInput').value) || 0;
+    const price = parseFloat(document.getElementById('priceInput').value) || 0;
+    document.getElementById('totalInput').value = amt > 0 && price > 0 ? (amt*price).toFixed(2) : '';
+}
+
+function selectPrice(p) {
+    document.getElementById('priceInput').value = p.toFixed ? p.toFixed(S.price>=100?2:4) : p;
+    calcTotal();
+    showToast('info','Price Selected', formatNum(+p)+' USDT copied to price field.');
+}
+
+function placeTrade(side) {
+    const amt   = parseFloat(document.getElementById('amountInput').value);
+    const price = parseFloat(document.getElementById('priceInput').value);
+    if (!amt || (!price && S.tradeType !== 'market')) {
+        showToast('warning','Incomplete Order','Please enter amount' + (S.tradeType!=='market'?' and price':'') + '.');
+        return;
+    }
+    const execPrice = S.tradeType === 'market' ? S.price : price;
+    const total = (amt * execPrice).toFixed(2);
+    const isBuy = side === 'buy';
+    showToast('success',
+        (isBuy?'BUY':'SELL')+' Order Placed',
+        `<b>${amt} ${PAIRS[S.pair].symbol}</b> @ ${formatNum(execPrice)} USDT<br>Total: <b>${total} USDT</b>  |  Leverage: <b>${S.leverage}x</b>  |  Type: <b>${S.tradeType}</b>`
+    );
+    // reset
+    document.getElementById('amountInput').value = '';
+    document.getElementById('amountSlider').value = 0;
+    calcTotal();
+}
+
+// ============================================================
+// ORDER BOOK TAB SWITCH
+// ============================================================
+(function setupOrderTabs() {
+    document.querySelectorAll('.order-tab').forEach(tab => {
+        tab.addEventListener('click', () => {
+            document.querySelectorAll('.order-tab').forEach(t => t.classList.remove('active'));
+            tab.classList.add('active');
+            const isOB = tab.dataset.tab === 'orderbook';
+            document.getElementById('orderbookView').style.display = isOB ? '' : 'none';
+            document.getElementById('tradesView').style.display   = isOB ? 'none' : '';
+        });
+    });
+
+    // OB size toggle
+    let obSmall = false;
+    document.getElementById('obSizeBtn').addEventListener('click', () => {
+        obSmall = !obSmall;
+        // toggle between 14 and 8 rows
+        showToast('info', 'Order Book', obSmall ? 'Compact view' : 'Full view');
+    });
+
+    // Filter toggle (cosmetic – toggles label)
+    document.querySelectorAll('.order-filters button').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('.order-filters button').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+        });
+    });
+})();
+
+// ============================================================
+// TIMEFRAME / PERIOD / VIEW BUTTONS
+// ============================================================
+(function setupBtnGroups() {
+    // Generic: any .btn-group toggles active within itself
+    document.querySelectorAll('.btn-group').forEach(group => {
+        group.querySelectorAll('button').forEach(btn => {
+            btn.addEventListener('click', () => {
+                group.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+            });
+        });
+    });
+
+    // Timeframe changes: regenerate candles with different count
+    document.getElementById('timeframeButtons').addEventListener('click', e => {
+        const btn = e.target.closest('button');
+        if (!btn || !btn.dataset.tf) return;
+        initCandles();
+        drawChart();
+    });
+
+    // Period changes: adjust candle count
+    document.getElementById('periodButtons').addEventListener('click', e => {
+        const btn = e.target.closest('button');
+        if (!btn || !btn.dataset.period) return;
+        initCandles();
+        drawChart();
+    });
+})();
+
+// ============================================================
+// DROPDOWN PANELS
+// ============================================================
+let activeDropdown = null;
+
+function closeAllDropdowns() {
+    document.querySelectorAll('.dropdown-panel').forEach(p => p.remove());
+    document.getElementById('themePanel').classList.remove('open');
+    activeDropdown = null;
+}
+
+document.addEventListener('click', e => {
+    // close dropdowns if click outside
+    if (!e.target.closest('.dropdown-panel') && !e.target.closest('#pairSelector') &&
+        !e.target.closest('#notifBtn') && !e.target.closest('#settingsBtn') &&
+        !e.target.closest('#profileBtn') && !e.target.closest('#indicatorsBtn') &&
+        !e.target.closest('#chartSettingsBtn') && !e.target.closest('#themeFab')) {
+        closeAllDropdowns();
+    }
+});
+
+function openDropdown(anchorEl, html, opts={}) {
+    closeAllDropdowns();
+    const panel = document.createElement('div');
+    panel.className = 'dropdown-panel';
+    panel.style.top = '100%';
+    panel.style.marginTop = '6px';
+    if (opts.right) { panel.style.right='0'; panel.style.left='auto'; }
+    panel.innerHTML = html;
+    anchorEl.style.position = 'relative';
+    anchorEl.appendChild(panel);
+    activeDropdown = panel;
+    panel.querySelector('.panel-close')?.addEventListener('click', closeAllDropdowns);
+}
+
+// --- Pair Selector ---
+document.getElementById('pairSelector').addEventListener('click', () => {
+    const pairs = Object.keys(PAIRS);
+    let items = pairs.map(name => {
+        const p = PAIRS[name];
+        const active = S.pair === name;
+        return `<div class="pair-item ${active?'active':''}" data-pair="${name}" style="display:flex;align-items:center;gap:10px;padding:10px 0;cursor:pointer;border-bottom:1px solid var(--border);transition:opacity 0.15s;">
+            <div class="crypto-icon ${p.iconClass}" style="width:28px;height:28px;font-size:13px;">${p.icon}</div>
+            <div style="flex:1;">
+                <div style="font-weight:700;font-size:13px;color:var(--text-primary);">${name}</div>
+                <div style="font-size:10.5px;color:var(--text-tertiary);">Perpetual • 5x</div>
+            </div>
+            <div style="text-align:right;">
+                <div style="font-weight:700;font-size:13px;color:var(--text-primary);">${formatNum(p.basePrice)}</div>
+            </div>
+            ${active ? '<i class="fas fa-check" style="color:var(--accent-primary);font-size:13px;"></i>' : ''}
+        </div>`;
+    }).join('');
+    openDropdown(document.getElementById('pairSelector'),
+        `<div class="panel-header"><strong>Trading Pairs</strong><button class="panel-close"><i class="fas fa-xmark"></i></button></div>
+         <div class="panel-body" style="padding:10px 18px 14px;">${items}</div>`, {});
+
+    document.querySelectorAll('.pair-item').forEach(item => {
+        item.addEventListener('click', () => switchPair(item.dataset.pair));
+    });
+});
+
+// --- Notifications ---
+document.getElementById('notifBtn').addEventListener('click', () => {
+    openDropdown(document.getElementById('notifBtn'),
+        `<div class="panel-header"><strong>Notifications</strong><button class="panel-close"><i class="fas fa-xmark"></i></button></div>
+         <div class="panel-body" style="padding:0;">
+           <div style="padding:12px 18px;border-bottom:1px solid var(--border);">
+             <div style="font-weight:600;font-size:12px;color:var(--green);margin-bottom:3px;">✓ Order Filled</div>
+             <div style="font-size:11px;color:var(--text-tertiary);">Your BUY order at 2,256.62 USDT has been filled.</div>
+           </div>
+           <div style="padding:12px 18px;border-bottom:1px solid var(--border);">
+             <div style="font-weight:600;font-size:12px;color:var(--orange);margin-bottom:3px;">⚠ Liquidation Warning</div>
+             <div style="font-size:11px;color:var(--text-tertiary);">Liquidation risk 35% — review your position.</div>
+           </div>
+           <div style="padding:12px 18px;">
+             <div style="font-weight:600;font-size:12px;color:var(--text-primary);margin-bottom:3px;">📊 Market Update</div>
+             <div style="font-size:11px;color:var(--text-tertiary);">BTC approaching key resistance level.</div>
+           </div>
+         </div>`, { right:true });
+    // clear badge
+    document.getElementById('notifBadge').style.display='none';
+});
+
+// --- Settings ---
+document.getElementById('settingsBtn').addEventListener('click', () => {
+    openDropdown(document.getElementById('settingsBtn'),
+        `<div class="panel-header"><strong>Settings</strong><button class="panel-close"><i class="fas fa-xmark"></i></button></div>
+         <div class="panel-body">
+           <label style="display:flex;align-items:center;gap:10px;padding:8px 0;cursor:pointer;"><input type="checkbox" style="width:15px;height:15px;accent-color:var(--accent-primary);"><span style="font-size:12.5px;color:var(--text-primary);">Sound Alerts</span></label>
+           <label style="display:flex;align-items:center;gap:10px;padding:8px 0;cursor:pointer;"><input type="checkbox" checked style="width:15px;height:15px;accent-color:var(--accent-primary);"><span style="font-size:12.5px;color:var(--text-primary);">Show Grid Lines</span></label>
+           <label style="display:flex;align-items:center;gap:10px;padding:8px 0;cursor:pointer;"><input type="checkbox" checked style="width:15px;height:15px;accent-color:var(--accent-primary);"><span style="font-size:12.5px;color:var(--text-primary);">Auto-refresh Data</span></label>
+           <label style="display:flex;align-items:center;gap:10px;padding:8px 0;cursor:pointer;"><input type="checkbox" style="width:15px;height:15px;accent-color:var(--accent-primary);"><span style="font-size:12.5px;color:var(--text-primary);">Dark Candle Borders</span></label>
+         </div>`, { right:true });
+});
+
+// --- Profile ---
+document.getElementById('profileBtn').addEventListener('click', () => {
+    openDropdown(document.getElementById('profileBtn'),
+        `<div class="panel-header"><strong>Account</strong><button class="panel-close"><i class="fas fa-xmark"></i></button></div>
+         <div class="panel-body" style="text-align:center;">
+           <div style="width:52px;height:52px;background:linear-gradient(135deg,#2979f0,#1565c0);border-radius:50%;margin:0 auto 10px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:18px;color:#fff;">LE</div>
+           <div style="font-weight:600;font-size:14px;color:var(--text-primary);">Lamzy Elite</div>
+           <div style="font-size:11px;color:var(--text-tertiary);margin-bottom:14px;">Premium Member</div>
+           <div style="background:var(--bg-hover);border-radius:8px;padding:12px;text-align:left;">
+             <div style="display:flex;justify-content:space-between;margin-bottom:8px;"><span style="font-size:11px;color:var(--text-tertiary);">Balance</span><span style="font-size:12px;font-weight:600;color:var(--accent-primary);">$5,000</span></div>
+             <div style="display:flex;justify-content:space-between;margin-bottom:8px;"><span style="font-size:11px;color:var(--text-tertiary);">P&L</span><span style="font-size:12px;font-weight:600;color:var(--green);">+15.2%</span></div>
+             <div style="display:flex;justify-content:space-between;"><span style="font-size:11px;color:var(--text-tertiary);">Win Rate</span><span style="font-size:12px;font-weight:600;color:var(--green);">68.5%</span></div>
+           </div>
+         </div>`, { right:true });
+});
+
+// --- Indicators ---
+document.getElementById('indicatorsBtn').addEventListener('click', () => {
+    openDropdown(document.getElementById('indicatorsBtn'),
+        `<div class="panel-header"><strong><i class="fas fa-chart-line" style="margin-right:6px;"></i>Indicators</strong><button class="panel-close"><i class="fas fa-xmark"></i></button></div>
+         <div class="panel-body">
+           <label style="display:flex;align-items:center;gap:10px;padding:7px 0;cursor:pointer;"><input type="checkbox" id="chkMA" ${S.showMA?'checked':''} style="width:15px;height:15px;accent-color:var(--accent-primary);"><span style="font-size:12px;color:var(--text-primary);">Moving Average (20)</span></label>
+           <label style="display:flex;align-items:center;gap:10px;padding:7px 0;cursor:pointer;"><input type="checkbox" id="chkBB" ${S.showBB?'checked':''} style="width:15px;height:15px;accent-color:var(--accent-primary);"><span style="font-size:12px;color:var(--text-primary);">Bollinger Bands (20)</span></label>
+           <label style="display:flex;align-items:center;gap:10px;padding:7px 0;cursor:pointer;"><input type="checkbox" id="chkRSI" ${S.showRSI?'checked':''} style="width:15px;height:15px;accent-color:var(--accent-primary);"><span style="font-size:12px;color:var(--text-primary);">RSI (14)</span></label>
+           <label style="display:flex;align-items:center;gap:10px;padding:7px 0;cursor:pointer;"><input type="checkbox" id="chkMACD" ${S.showMACD?'checked':''} style="width:15px;height:15px;accent-color:var(--accent-primary);"><span style="font-size:12px;color:var(--text-primary);">MACD (12/26/9)</span></label>
+           <label style="display:flex;align-items:center;gap:10px;padding:7px 0;cursor:pointer;"><input type="checkbox" id="chkVol" ${S.showVolume?'checked':''} style="width:15px;height:15px;accent-color:var(--accent-primary);"><span style="font-size:12px;color:var(--text-primary);">Volume</span></label>
+           <hr style="border:none;border-top:1px solid var(--border);margin:8px 0;">
+           <div style="font-size:10.5px;color:var(--text-tertiary);background:var(--bg-hover);padding:8px;border-radius:5px;line-height:1.5;">
+             <i class="fas fa-lightbulb" style="margin-right:5px;color:var(--orange);"></i><b>Tips:</b> Scroll to zoom • Drag to pan • Double-click to reset
+           </div>
+         </div>`, {});
+
+    // wire checkboxes
+    const wire = (id, key) => {
+        document.getElementById(id).addEventListener('change', function() { S[key]=this.checked; drawChart(); });
+    };
+    wire('chkMA','showMA'); wire('chkBB','showBB'); wire('chkRSI','showRSI'); wire('chkMACD','showMACD'); wire('chkVol','showVolume');
+});
+
+// --- Chart Settings ---
+document.getElementById('chartSettingsBtn').addEventListener('click', () => {
+    openDropdown(document.getElementById('chartSettingsBtn'),
+        `<div class="panel-header"><strong>Chart Settings</strong><button class="panel-close"><i class="fas fa-xmark"></i></button></div>
+         <div class="panel-body">
+           <div style="margin-bottom:12px;">
+             <label style="font-size:11px;color:var(--text-tertiary);display:block;margin-bottom:5px;">Candle Style</label>
+             <div style="display:flex;gap:6px;">
+               <button style="flex:1;padding:6px;background:var(--bg-hover);border:1px solid var(--border);border-radius:5px;color:var(--text-secondary);font-size:11px;cursor:pointer;font-weight:600;" onclick="showToast('info','Style','Candlestick selected')">Candle</button>
+               <button style="flex:1;padding:6px;background:var(--bg-hover);border:1px solid var(--border);border-radius:5px;color:var(--text-secondary);font-size:11px;cursor:pointer;font-weight:600;" onclick="showToast('info','Style','Line chart selected')">Line</button>
+               <button style="flex:1;padding:6px;background:var(--bg-hover);border:1px solid var(--border);border-radius:5px;color:var(--text-secondary);font-size:11px;cursor:pointer;font-weight:600;" onclick="showToast('info','Style','OHLC selected')">OHLC</button>
+             </div>
+           </div>
+           <div>
+             <label style="font-size:11px;color:var(--text-tertiary);display:block;margin-bottom:5px;">Grid Density</label>
+             <div style="display:flex;gap:6px;">
+               <button style="flex:1;padding:6px;background:var(--bg-hover);border:1px solid var(--border);border-radius:5px;color:var(--text-secondary);font-size:11px;cursor:pointer;font-weight:600;" onclick="showToast('info','Grid','Light grid')">Light</button>
+               <button style="flex:1;padding:6px;background:var(--bg-hover);border:1px solid var(--border);border-radius:5px;color:var(--text-secondary);font-size:11px;cursor:pointer;font-weight:600;" onclick="showToast('info','Grid','Medium grid')">Medium</button>
+               <button style="flex:1;padding:6px;background:var(--bg-hover);border:1px solid var(--border);border-radius:5px;color:var(--text-secondary);font-size:11px;cursor:pointer;font-weight:600;" onclick="showToast('info','Grid','Dense grid')">Dense</button>
+             </div>
+           </div>
+         </div>`, {});
+});
+
+// --- Refresh ---
+document.getElementById('refreshBtn').addEventListener('click', () => {
+    initCandles();
+    drawChart();
+    showToast('success','Refreshed','Chart data reloaded.');
+});
+
+// --- Fullscreen ---
+document.getElementById('fullscreenBtn').addEventListener('click', () => {
+    if (!document.fullscreenElement) document.documentElement.requestFullscreen();
+    else document.exitFullscreen();
+});
+
+// ============================================================
+// THEME SWITCHER
+// ============================================================
+(function setupTheme() {
+    const fab   = document.getElementById('themeFab');
+    const panel = document.getElementById('themePanel');
+
+    fab.addEventListener('click', e => {
+        if (e.target.closest('.theme-option')) return;
+        panel.classList.toggle('open');
+    });
+
+    document.addEventListener('click', e => {
+        if (!fab.contains(e.target)) panel.classList.remove('open');
+    });
+
+    panel.querySelectorAll('.theme-option').forEach(opt => {
+        opt.addEventListener('click', () => {
+            panel.querySelectorAll('.theme-option').forEach(o => o.classList.remove('active'));
+            opt.classList.add('active');
+            document.body.className = opt.dataset.theme;
+            refreshColorCache();
+            drawChart();
+            panel.classList.remove('open');
+        });
+    });
+})();
+
+// ============================================================
+// SEARCH FILTER (pairs)
+// ============================================================
+document.getElementById('searchInput').addEventListener('input', function() {
+    const q = this.value.toLowerCase();
+    // If pair selector is open, filter items; otherwise just store
+    document.querySelectorAll('.pair-item').forEach(item => {
+        const name = item.dataset.pair.toLowerCase();
+        item.style.display = name.includes(q) ? '' : 'none';
+    });
+});
+
+// ============================================================
+// MAIN UPDATE LOOP
+// ============================================================
+let lastTick = 0;
+
+function tick() {
+    const now = Date.now();
+    if (now - lastTick < 400) { requestAnimationFrame(tick); return; }
+    lastTick = now;
+
+    // Mutate last candle & occasionally push new one
+    const last = S.candles[S.candles.length-1];
+    const base = PAIRS[S.pair].basePrice;
+    const change = (Math.random()-0.48) * base * 0.0015;
+    const newClose = last.close + change;
+
+    if (Math.random() > 0.75) {
+        // new candle
+        S.candles.push({
+            open: last.close,
+            high: Math.max(last.close, newClose) + Math.random()*base*0.001,
+            low:  Math.min(last.close, newClose) - Math.random()*base*0.001,
+            close: newClose,
+            volume: Math.random()*12+3
+        });
+        if (S.candles.length > 80) S.candles.shift();
+    } else {
+        // update current candle
+        last.close = newClose;
+        last.high  = Math.max(last.high, newClose);
+        last.low   = Math.min(last.low, newClose);
+    }
+
+    S.prevPrice = S.price;
+    S.price     = newClose;
+
+    // update OB & trades
+    generateOrderBook();
+    pushTrade();
+
+    // render
+    renderOrderBook();
+    renderTrades();
+    updateTopBar();
+    drawChart();
+
+    // clock
+    const d = new Date();
+    document.getElementById('currentTime').textContent =
+        String(d.getUTCHours()).padStart(2,'0')+':'+
+        String(d.getUTCMinutes()).padStart(2,'0')+':'+
+        String(d.getUTCSeconds()).padStart(2,'0')+' UTC';
+
+    requestAnimationFrame(tick);
+}
+
+// ============================================================
+// BOOT
+// ============================================================
+
+// Load saved theme
+const savedTheme = localStorage.getItem('theme');
+if (savedTheme && savedTheme.toLowerCase() !== 'dark') {
+    document.body.classList.add(`theme-${savedTheme.toLowerCase()}`);
+}
+
+refreshColorCache();
+initCandles();
+generateOrderBook();
+for (let i=0;i<15;i++) pushTrade();
+renderOrderBook();
+renderTrades();
+updateTopBar();
+drawChart();
+tick();
+
+// redraw on resize
+let resizeTimer;
+window.addEventListener('resize', () => { clearTimeout(resizeTimer); resizeTimer = setTimeout(drawChart, 80); });
+
+// Listen for theme changes in real-time
+window.addEventListener('storage', (event) => {
+    if (event.key === 'theme') {
+        const newTheme = event.newValue || '';
+        document.body.className = newTheme;
+    }
+});
+</script>
+</body>
+</html>

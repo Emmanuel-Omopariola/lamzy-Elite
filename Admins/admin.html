@@ -1,0 +1,2453 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - Lamzy Elite</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --bg-primary: #0a0a0a;
+            --bg-secondary: #121212;
+            --bg-tertiary: #1e1e1e;
+            --bg-hover: #2a2a2a;
+            --text-primary: #ffffff;
+            --text-secondary: #b0b0b0;
+            --text-tertiary: #808080;
+            --accent-primary: #ffffff;
+            --accent-hover: #f0f0f0;
+            --border: #2a2a2a;
+            --card-bg: #1a1a1a;
+            --green: #22c55e;
+            --red: #ef4444;
+            --orange: #f59e0b;
+            --blue: #2979f0;
+        }
+
+        body.theme-light {
+            --bg-primary: #f0f2f5;
+            --bg-secondary: #ffffff;
+            --bg-tertiary: #e4e7ea;
+            --bg-hover: #dcdfe3;
+            --text-primary: #202124;
+            --text-secondary: #5f6368;
+            --text-tertiary: #80868b;
+            --accent-primary: #1a73e8;
+            --accent-hover: #1558b0;
+            --border: #dadce0;
+            --card-bg: #ffffff;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            overflow: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .admin-container {
+            display: flex;
+            height: 100vh;
+        }
+
+        .sidebar {
+            width: 68px;
+            background: var(--card-bg);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            z-index: 50;
+            transition: width 0.25s cubic-bezier(0.4,0,0.2,1);
+            overflow-y: auto;
+            overflow-x: visible;
+            flex-shrink: 0;
+            height: 100vh;
+            max-height: 100vh;
+            padding-bottom: 60px;
+        }
+
+        .sidebar.expanded { width: 230px; }
+        .sidebar.hover-mode { width: 68px; z-index: 100; }
+        .sidebar.hover-mode:hover,
+        .sidebar.hover-mode.hovered { width: 230px; z-index: 200; }
+
+        .sidebar-section {
+            padding: 8px 0;
+            border-bottom: 1px solid var(--border);
+            flex-shrink: 0;
+        }
+
+        .sidebar-section:last-of-type { border-bottom: none; }
+
+        .section-title {
+            padding: 5px 22px 3px;
+            font-size: 10px;
+            font-weight: 700;
+            color: var(--text-tertiary);
+            text-transform: uppercase;
+            letter-spacing: 1.1px;
+            white-space: nowrap;
+            opacity: 0;
+            transition: opacity 0.25s;
+            pointer-events: none;
+        }
+
+        .section-title i {
+            display: inline-block;
+            width: 12px;
+            text-align: center;
+            margin-right: 3px;
+            font-size: 9px;
+        }
+
+        .sidebar.expanded .section-title,
+        .sidebar.hover-mode:hover .section-title,
+        .sidebar.hover-mode.hovered .section-title { 
+            opacity: 1;
+        }
+
+        .sidebar-item {
+            padding: 8px 22px;
+            height: 38px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            color: var(--text-secondary);
+            font-size: 12.5px;
+            font-weight: 600;
+            transition: all 0.15s;
+            white-space: nowrap;
+            border-left: 3px solid transparent;
+            margin: 0 6px 0 0;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .sidebar-item i {
+            width: 18px;
+            text-align: center;
+            flex-shrink: 0;
+            font-size: 13px;
+        }
+
+        .sidebar-label {
+            opacity: 0;
+            transition: opacity 0.25s;
+            display: inline;
+            margin-left: 8px;
+        }
+
+        .sidebar.expanded .sidebar-label,
+        .sidebar.hover-mode:hover .sidebar-label,
+        .sidebar.hover-mode.hovered .sidebar-label { opacity: 1; }
+
+        .sidebar-item:hover {
+            background: var(--bg-hover);
+            color: var(--accent-primary);
+        }
+
+        .sidebar-item.active {
+            background: var(--bg-hover);
+            color: var(--accent-primary);
+            border-left-color: var(--accent-primary);
+        }
+
+        .sidebar-item.active i { color: var(--accent-primary); }
+
+        .sidebar-footer {
+            margin-top: auto;
+            padding: 12px 6px;
+            border-top: 1px solid var(--border);
+            display: flex;
+            justify-content: center;
+        }
+
+        .sidebar-footer-btn {
+            width: 48px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--bg-hover);
+            border-radius: 8px;
+            cursor: pointer;
+            color: var(--text-secondary);
+            transition: all 0.2s;
+            position: relative;
+            font-size: 14px;
+        }
+
+        .sidebar-footer-btn:hover {
+            color: var(--accent-primary);
+            background: var(--bg-tertiary);
+        }
+
+        .sidebar-label {
+            display: inline;
+            margin-left: 8px;
+        }
+
+        .sidebar.expanded .sidebar-label {
+            display: inline;
+            margin-left: 8px;
+        }
+
+        .sidebar-settings-menu {
+            position: fixed;
+            bottom: 80px;
+            left: 6px;
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            display: none;
+            flex-direction: column;
+            min-width: 180px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+            z-index: 999;
+            overflow: hidden;
+        }
+
+        .sidebar-settings-menu.show {
+            display: flex;
+        }
+
+        .settings-menu-header {
+            padding: 10px 14px;
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--text-tertiary);
+            text-transform: uppercase;
+            border-bottom: 1px solid var(--border);
+            letter-spacing: 0.5px;
+        }
+
+        .settings-menu-item {
+            padding: 10px 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            transition: background 0.15s;
+        }
+
+        .settings-menu-item:hover {
+            background: var(--bg-hover);
+        }
+
+        .settings-menu-item input[type="radio"] {
+            cursor: pointer;
+            accent-color: var(--accent-primary);
+        }
+
+        .settings-menu-item label {
+            cursor: pointer;
+            font-size: 12px;
+            color: var(--text-secondary);
+            flex: 1;
+        }
+
+        .top-navbar {
+            background: var(--card-bg);
+            border-bottom: 1px solid var(--border);
+            padding: 12px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 24px;
+            position: sticky;
+            top: 0;
+            z-index: 400;
+            height: 62px;
+            flex-shrink: 0;
+        }
+
+        .nav-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            flex: 1;
+        }
+
+        .nav-logo {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            height: 34px;
+        }
+
+        .logo-image {
+            height: 28px;
+            width: auto;
+        }
+
+        .nav-logo-text {
+            font-size: 18px;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            white-space: nowrap;
+        }
+
+        .nav-title {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--text-secondary);
+            padding-left: 16px;
+            border-left: 1px solid var(--border);
+        }
+
+        .nav-right {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-shrink: 0;
+        }
+
+        .icon-btn {
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--bg-hover);
+            border-radius: 8px;
+            cursor: pointer;
+            color: var(--text-secondary);
+            transition: all 0.2s;
+            position: relative;
+            font-size: 14px;
+        }
+
+        .icon-btn:hover {
+            background: var(--bg-tertiary);
+            color: var(--accent-primary);
+        }
+
+        .notification-badge {
+            position: absolute;
+            top: -4px;
+            right: -4px;
+            background: var(--red);
+            color: white;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            font-weight: 700;
+        }
+
+        .profile {
+            width: 36px;
+            height: 36px;
+            background: var(--accent-primary);
+            color: var(--bg-primary);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .profile:hover {
+            background: var(--accent-hover);
+        }
+
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .tab-content {
+            display: none;
+            flex: 1;
+            overflow-y: auto;
+            padding: 24px;
+        }
+
+        .tab-content.active {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .content-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 20px;
+            align-content: start;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 20px;
+            transition: all 0.2s;
+        }
+
+        .card:hover {
+            border-color: var(--accent-primary);
+            background: var(--bg-hover);
+        }
+
+        .user-card {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .user-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .user-avatar {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, var(--accent-primary), #7fb3ff);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--bg-primary);
+            flex-shrink: 0;
+        }
+
+        .user-info h3 {
+            font-size: 14px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .user-email {
+            font-size: 12px;
+            color: var(--text-tertiary);
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+        .status-active {
+            background: rgba(34, 197, 94, 0.2);
+            color: var(--green);
+        }
+
+        .status-inactive {
+            background: rgba(239, 68, 68, 0.2);
+            color: var(--red);
+        }
+
+        .tier-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .tier-elite {
+            background: rgba(41, 121, 240, 0.2);
+            color: var(--blue);
+        }
+
+        .tier-alpha {
+            background: rgba(245, 158, 11, 0.2);
+            color: var(--orange);
+        }
+
+        .tier-standard {
+            background: rgba(176, 176, 176, 0.2);
+            color: var(--text-secondary);
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 8px 12px;
+            border: 1px solid var(--border);
+            background: var(--bg-secondary);
+            color: var(--text-secondary);
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 11px;
+            font-weight: 700;
+            transition: all 0.2s;
+        }
+
+        .btn:hover {
+            border-color: var(--accent-primary);
+            color: var(--accent-primary);
+        }
+
+        .btn-danger {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--red);
+            border-color: rgba(239, 68, 68, 0.3);
+        }
+
+        .btn-danger:hover {
+            background: rgba(239, 68, 68, 0.2);
+        }
+
+        .signal-form {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 24px;
+            max-width: 600px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: var(--text-tertiary);
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .form-input,
+        .form-select,
+        .form-textarea {
+            width: 100%;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 12px;
+            color: var(--text-primary);
+            font-size: 13px;
+            transition: border-color 0.2s;
+        }
+
+        .form-input:focus,
+        .form-select:focus,
+        .form-textarea:focus {
+            outline: none;
+            border-color: var(--accent-primary);
+        }
+
+        .form-textarea {
+            resize: vertical;
+            min-height: 100px;
+            font-family: inherit;
+        }
+
+        .filter-group {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .filter-checkbox {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .filter-checkbox:hover {
+            border-color: var(--accent-primary);
+            background: var(--bg-hover);
+        }
+
+        .filter-checkbox input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+
+        .filter-checkbox label {
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .submit-btn {
+            width: 100%;
+            background: var(--accent-primary);
+            color: var(--bg-primary);
+            border: none;
+            padding: 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 700;
+            transition: all 0.2s;
+        }
+
+        .submit-btn:hover {
+            background: var(--accent-hover);
+        }
+
+        .table-container {
+            overflow-x: auto;
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead {
+            background: var(--bg-tertiary);
+            border-bottom: 1px solid var(--border);
+        }
+
+        th {
+            padding: 16px 20px;
+            text-align: left;
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: var(--text-tertiary);
+            letter-spacing: 0.5px;
+        }
+
+        td {
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border);
+            font-size: 13px;
+        }
+
+        tbody tr:hover {
+            background: var(--bg-hover);
+        }
+
+        .theme-fab {
+            position: fixed;
+            bottom: 28px;
+            right: 28px;
+            width: 50px;
+            height: 50px;
+            background: var(--card-bg);
+            border: 2px solid var(--border);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: var(--text-secondary);
+            z-index: 1990;
+            font-size: 18px;
+            transition: all 0.2s;
+        }
+
+        .theme-fab:hover {
+            border-color: var(--accent-primary);
+            color: var(--accent-primary);
+        }
+
+        @media (max-width: 480px) {
+            .sidebar {
+                width: 50px;
+            }
+
+            .sidebar.collapsed {
+                width: 50px;
+            }
+
+            .sidebar-header {
+                padding: 12px 8px;
+                min-height: 50px;
+            }
+
+            .logo-image {
+                height: 24px;
+            }
+
+            .tab-content {
+                padding: 12px;
+            }
+
+            .content-grid {
+                grid-template-columns: 1fr;
+                gap: 12px;
+            }
+
+            .card {
+                padding: 12px;
+            }
+
+            .signal-form {
+                padding: 16px;
+                max-width: 100%;
+            }
+
+            .filter-group {
+                grid-template-columns: 1fr;
+                gap: 8px;
+            }
+
+            .user-header {
+                gap: 8px;
+            }
+
+            .user-avatar {
+                width: 36px;
+                height: 36px;
+                font-size: 14px;
+            }
+
+            .user-info h3 {
+                font-size: 12px;
+            }
+
+            .user-email {
+                font-size: 10px;
+            }
+
+            table {
+                font-size: 11px;
+            }
+
+            th, td {
+                padding: 10px 12px;
+            }
+
+            .action-buttons {
+                gap: 4px;
+            }
+
+            .btn {
+                padding: 6px 8px;
+                font-size: 10px;
+            }
+
+            .theme-fab {
+                width: 42px;
+                height: 42px;
+                font-size: 16px;
+                bottom: 16px;
+                right: 16px;
+            }
+        }
+
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+        /* Modal Styles */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.6);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .modal-overlay.show {
+            display: flex;
+        }
+
+        .modal {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+            animation: slideUp 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .modal-header {
+            padding: 24px 24px 16px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-title {
+            font-size: 20px;
+            font-weight: 800;
+        }
+
+        .modal-close {
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--bg-hover);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            cursor: pointer;
+            color: var(--text-secondary);
+            transition: all 0.2s;
+            font-size: 18px;
+        }
+
+        .modal-close:hover {
+            background: var(--bg-tertiary);
+            color: var(--accent-primary);
+        }
+
+        .modal-body {
+            padding: 24px;
+        }
+
+        .user-detail-header {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 24px;
+            padding-bottom: 24px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .user-detail-avatar {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, var(--accent-primary), #7fb3ff);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            font-weight: 800;
+            color: var(--bg-primary);
+            flex-shrink: 0;
+        }
+
+        .user-detail-info h2 {
+            font-size: 18px;
+            font-weight: 800;
+            margin-bottom: 6px;
+        }
+
+        .user-detail-info p {
+            font-size: 12px;
+            color: var(--text-tertiary);
+            margin-bottom: 8px;
+        }
+
+        .user-detail-badges {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .detail-section {
+            margin-bottom: 24px;
+        }
+
+        .detail-section-title {
+            font-size: 13px;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: var(--text-tertiary);
+            margin-bottom: 12px;
+            letter-spacing: 0.5px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            font-size: 13px;
+        }
+
+        .detail-row:last-child {
+            border-bottom: none;
+        }
+
+        .detail-label {
+            color: var(--text-secondary);
+            font-weight: 600;
+        }
+
+        .detail-value {
+            color: var(--text-primary);
+            font-weight: 700;
+        }
+
+        .detail-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        .detail-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 16px;
+        }
+
+        .detail-card-title {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--text-tertiary);
+            text-transform: uppercase;
+            margin-bottom: 8px;
+            letter-spacing: 0.5px;
+        }
+
+        .detail-card-value {
+            font-size: 20px;
+            font-weight: 800;
+            color: var(--green);
+        }
+
+        .modal-actions {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border);
+        }
+
+        .modal-btn {
+            padding: 12px;
+            border: 1px solid var(--border);
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 700;
+            transition: all 0.2s;
+        }
+
+        .modal-btn:hover {
+            border-color: var(--accent-primary);
+            background: var(--bg-hover);
+            color: var(--accent-primary);
+        }
+
+        .modal-btn-danger {
+            background: rgba(239, 68, 68, 0.1);
+            border-color: rgba(239, 68, 68, 0.3);
+            color: var(--red);
+        }
+
+        .modal-btn-danger:hover {
+            background: rgba(239, 68, 68, 0.2);
+            border-color: var(--red);
+        }
+
+        @media (max-width: 600px) {
+            .modal {
+                width: 95%;
+                max-height: 95vh;
+            }
+
+            .detail-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .modal-actions {
+                grid-template-columns: 1fr;
+            }
+
+            .user-detail-header {
+                flex-direction: column;
+                align-items: center;
+                text-align: center;
+            }
+
+            .user-detail-avatar {
+                width: 60px;
+                height: 60px;
+                font-size: 24px;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="top-navbar">
+    <div class="nav-left">
+        <div class="nav-logo" onclick="goToDashboard()">
+            <img src="../images/logo.png" alt="Lamzy Elite" class="logo-image">
+            <span class="nav-logo-text">Lamzy<span style="-webkit-text-fill-color: var(--accent-primary);">Elite</span></span>
+        </div>
+        <div class="nav-title">Admin Panel</div>
+    </div>
+    <div class="nav-right">
+        <div class="icon-btn" onclick="toggleTheme()">
+            <i class="fas fa-circle-half-stroke"></i>
+        </div>
+        <div class="icon-btn" onclick="logout()">
+            <i class="fas fa-sign-out-alt"></i>
+        </div>
+    </div>
+</div>
+
+<div class="admin-container">
+    <div class="sidebar hover-mode" id="sidebar">
+        <div class="sidebar-section">
+            <div class="sidebar-item active" onclick="switchTab('users')"><i class="fas fa-users"></i><span class="sidebar-label">Users</span></div>
+        </div>
+
+        <div class="sidebar-section">
+            <div class="section-title"><i class="fas fa-cog"></i> Management</div>
+            <div class="sidebar-item" onclick="switchTab('coadmins')"><i class="fas fa-user-shield"></i><span class="sidebar-label">Co-Admins</span></div>
+            <div class="sidebar-item" onclick="switchTab('support')"><i class="fas fa-headset"></i><span class="sidebar-label">Support</span></div>
+            <div class="sidebar-item" onclick="switchTab('risk')"><i class="fas fa-exclamation-triangle"></i><span class="sidebar-label">Risk Mgmt</span></div>
+            <div class="sidebar-item" onclick="switchTab('liquidity')"><i class="fas fa-water"></i><span class="sidebar-label">Liquidity</span></div>
+            <div class="sidebar-item" onclick="switchTab('leverage')"><i class="fas fa-sliders-h"></i><span class="sidebar-label">Leverage</span></div>
+        </div>
+
+        <div class="sidebar-section">
+            <div class="section-title"><i class="fas fa-signal"></i> Broadcasting</div>
+            <div class="sidebar-item" onclick="switchTab('signals')"><i class="fas fa-broadcast-tower"></i><span class="sidebar-label">Signals</span></div>
+        </div>
+
+        <div class="sidebar-section">
+            <div class="section-title"><i class="fas fa-chart-line"></i> Analytics</div>
+            <div class="sidebar-item" onclick="switchTab('performance')"><i class="fas fa-tachometer-alt"></i><span class="sidebar-label">Performance</span></div>
+            <div class="sidebar-item" onclick="switchTab('activity')"><i class="fas fa-stream"></i><span class="sidebar-label">Activity Feed</span></div>
+            <div class="sidebar-item" onclick="switchTab('portfolio')"><i class="fas fa-briefcase"></i><span class="sidebar-label">Portfolio</span></div>
+            <div class="sidebar-item" onclick="switchTab('trading-analytics')"><i class="fas fa-chart-bar"></i><span class="sidebar-label">Trading Analytics</span></div>
+            <div class="sidebar-item" onclick="switchTab('revenue-analytics')"><i class="fas fa-dollar-sign"></i><span class="sidebar-label">Revenue</span></div>
+            <div class="sidebar-item" onclick="switchTab('user-insights')"><i class="fas fa-users"></i><span class="sidebar-label">User Insights</span></div>
+        </div>
+
+        <div class="sidebar-section">
+            <div class="section-title"><i class="fas fa-shield-alt"></i> Security & Compliance</div>
+            <div class="sidebar-item" onclick="switchTab('compliance-advanced')"><i class="fas fa-certificate"></i><span class="sidebar-label">Compliance</span></div>
+            <div class="sidebar-item" onclick="switchTab('audit-logs')"><i class="fas fa-lock"></i><span class="sidebar-label">Audit Logs</span></div>
+        </div>
+
+        <div class="sidebar-section">
+            <div class="section-title"><i class="fas fa-credit-card"></i> Financial</div>
+            <div class="sidebar-item" onclick="switchTab('funding')"><i class="fas fa-money-bill"></i><span class="sidebar-label">Funding</span></div>
+            <div class="sidebar-item" onclick="switchTab('commissions')"><i class="fas fa-percent"></i><span class="sidebar-label">Commissions</span></div>
+        </div>
+
+        <div class="sidebar-section">
+            <div class="section-title"><i class="fas fa-shield"></i> Compliance</div>
+            <div class="sidebar-item" onclick="switchTab('compliance')"><i class="fas fa-check-circle"></i><span class="sidebar-label">KYC/AML</span></div>
+            <div class="sidebar-item" onclick="switchTab('restrictions')"><i class="fas fa-ban"></i><span class="sidebar-label">Restrictions</span></div>
+        </div>
+
+        <!-- Sidebar Controls (Bottom) -->
+        <div class="sidebar-footer">
+            <div class="sidebar-footer-btn" id="sidebarSettingsBtn" onclick="toggleSidebarSettings()">
+                <i class="fas fa-sliders-h"></i>
+            </div>
+        </div>
+
+        <!-- Settings Dropdown Menu -->
+        <div class="sidebar-settings-menu" id="sidebarSettingsMenu">
+            <div class="settings-menu-header">Sidebar Mode</div>
+            <div class="settings-menu-item" onclick="setSidebarMode('expanded')">
+                <input type="radio" name="sb-mode" id="sbExpanded" value="expanded">
+                <label for="sbExpanded">Expanded</label>
+            </div>
+            <div class="settings-menu-item" onclick="setSidebarMode('collapsed')">
+                <input type="radio" name="sb-mode" id="sbCollapsed" value="collapsed">
+                <label for="sbCollapsed">Collapsed</label>
+            </div>
+            <div class="settings-menu-item" onclick="setSidebarMode('hover')">
+                <input type="radio" name="sb-mode" id="sbHover" value="hover" checked>
+                <label for="sbHover">Hover Mode</label>
+            </div>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <!-- Users Tab -->
+        <div id="users" class="tab-content active">
+            <h2 style="margin-bottom:20px;font-size:20px;font-weight:700;">User Management</h2>
+            <div class="content-grid">
+                <div class="card user-card">
+                    <div class="user-header">
+                        <div class="user-avatar">JD</div>
+                        <div class="user-info">
+                            <h3>John Doe</h3>
+                            <div class="user-email">john@example.com</div>
+                        </div>
+                    </div>
+                    <div>
+                        <span class="tier-badge tier-elite">Elite</span>
+                        <span class="status-badge status-active" style="margin-left:8px;"><i class="fas fa-circle-check"></i>Active</span>
+                    </div>
+                    <div class="action-buttons">
+                        <button class="btn" onclick="editUser('user1')">View</button>
+                        <button class="btn btn-danger" onclick="deactivateUser('user1')">Deactivate</button>
+                    </div>
+                </div>
+
+                <div class="card user-card">
+                    <div class="user-header">
+                        <div class="user-avatar">SM</div>
+                        <div class="user-info">
+                            <h3>Sarah Miller</h3>
+                            <div class="user-email">sarah@example.com</div>
+                        </div>
+                    </div>
+                    <div>
+                        <span class="tier-badge tier-alpha">Alpha</span>
+                        <span class="status-badge status-active" style="margin-left:8px;"><i class="fas fa-circle-check"></i>Active</span>
+                    </div>
+                    <div class="action-buttons">
+                        <button class="btn" onclick="editUser('user2')">View</button>
+                        <button class="btn btn-danger" onclick="deactivateUser('user2')">Deactivate</button>
+                    </div>
+                </div>
+
+                <div class="card user-card">
+                    <div class="user-header">
+                        <div class="user-avatar">AK</div>
+                        <div class="user-info">
+                            <h3>Alex Kumar</h3>
+                            <div class="user-email">alex@example.com</div>
+                        </div>
+                    </div>
+                    <div>
+                        <span class="tier-badge tier-standard">Standard</span>
+                        <span class="status-badge status-inactive" style="margin-left:8px;"><i class="fas fa-circle-xmark"></i>Inactive</span>
+                    </div>
+                    <div class="action-buttons">
+                        <button class="btn" onclick="editUser('user3')">View</button>
+                        <button class="btn" onclick="activateUser('user3')">Activate</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Co-Admins Tab -->
+        <div id="coadmins" class="tab-content">
+            <h2 style="margin-bottom:20px;font-size:20px;font-weight:700;">Co-Admin Management</h2>
+            <div class="content-grid">
+                <div class="card user-card">
+                    <div class="user-header">
+                        <div class="user-avatar">MC</div>
+                        <div class="user-info">
+                            <h3>Michael Chen</h3>
+                            <div class="user-email">michael@admin.com</div>
+                        </div>
+                    </div>
+                    <div>
+                        <span class="status-badge status-active"><i class="fas fa-circle-check"></i>Active</span>
+                    </div>
+                    <div class="action-buttons">
+                        <button class="btn" onclick="editCoadmin('coadmin1')">Edit</button>
+                        <button class="btn btn-danger" onclick="removeCoadmin('coadmin1')">Remove</button>
+                    </div>
+                </div>
+
+                <div class="card user-card">
+                    <div class="user-header">
+                        <div class="user-avatar">EP</div>
+                        <div class="user-info">
+                            <h3>Emma Parker</h3>
+                            <div class="user-email">emma@admin.com</div>
+                        </div>
+                    </div>
+                    <div>
+                        <span class="status-badge status-active"><i class="fas fa-circle-check"></i>Active</span>
+                    </div>
+                    <div class="action-buttons">
+                        <button class="btn" onclick="editCoadmin('coadmin2')">Edit</button>
+                        <button class="btn btn-danger" onclick="removeCoadmin('coadmin2')">Remove</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Support Tab -->
+        <div id="support" class="tab-content">
+            <h2 style="margin-bottom:20px;font-size:20px;font-weight:700;">Support Tickets</h2>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>User</th>
+                            <th>Subject</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>2026-02-11</td>
+                            <td>John Doe</td>
+                            <td>Cannot withdraw funds</td>
+                            <td><span class="status-badge status-inactive">Pending</span></td>
+                            <td><button class="btn" onclick="handleSupport('supp1')">Resolve</button></td>
+                        </tr>
+                        <tr>
+                            <td>2026-02-10</td>
+                            <td>Sarah Miller</td>
+                            <td>Account verification issue</td>
+                            <td><span class="status-badge status-active">Resolved</span></td>
+                            <td><button class="btn" onclick="viewSupport('supp2')">View</button></td>
+                        </tr>
+                        <tr>
+                            <td>2026-02-10</td>
+                            <td>Alex Kumar</td>
+                            <td>Trading limits exceeded</td>
+                            <td><span class="status-badge status-inactive">Pending</span></td>
+                            <td><button class="btn" onclick="handleSupport('supp3')">Resolve</button></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Broadcast Signals Tab -->
+        <div id="signals" class="tab-content">
+            <h2 style="margin-bottom:20px;font-size:20px;font-weight:700;">Broadcast Trading Signals</h2>
+            
+            <!-- Signal Input Area (Modern Design) -->
+            <div style="padding: 16px; background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--card-bg) 100%); border: 1px solid var(--border); border-radius: 16px; margin-bottom: 20px; box-shadow: 0 4px 16px rgba(0,0,0,0.15); width: 100%; max-width: 100%;">
+                
+                <!-- Header -->
+                <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid var(--border);">
+                    <div style="width: 10px; height: 10px; background: var(--green); border-radius: 50%; animation: pulse 2s infinite;"></div>
+                    <span style="font-size: 13px; font-weight: 700; color: var(--text-primary); text-transform: uppercase; letter-spacing: 0.5px;">Broadcasting</span>
+                    <div style="flex: 1;"></div>
+                    <span style="font-size: 11px; color: var(--text-tertiary);">Live Feed</span>
+                </div>
+                
+                <!-- Main Input -->
+                <div style="display: flex; gap: 12px; align-items: flex-start; margin-bottom: 14px;">
+                    <!-- Action Buttons Left -->
+                    <div style="display: flex; flex-direction: column; gap: 8px;">
+                        <button class="icon-btn" title="Emoji" onclick="toggleEmojiPicker()" style="width: 38px; height: 38px; padding: 0; background: var(--bg-hover); border: 1px solid var(--border);">
+                            <i class="fas fa-smile-wink"></i>
+                        </button>
+                        <button class="icon-btn" title="Attachment" style="width: 38px; height: 38px; padding: 0; background: var(--bg-hover); border: 1px solid var(--border);">
+                            <i class="fas fa-paperclip"></i>
+                        </button>
+                    </div>
+                    
+                    <!-- Input Field -->
+                    <div style="flex: 1; position: relative;">
+                        <textarea class="form-input" id="signalMessage" placeholder="Share your trading signal... (Pro tip: Use @mention for emphasis)" style="margin: 0; padding: 12px 14px; font-size: 14px; line-height: 1.5; min-height: 76px; max-height: 150px; resize: vertical; font-family: inherit;"></textarea>
+                        
+                        <!-- Emoji Picker (Floating) -->
+                        <div id="emojiPickerDropdown" style="position: absolute; bottom: 100%; right: 0; background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; padding: 12px; display: none; z-index: 1000; width: 280px; box-shadow: 0 8px 32px rgba(0,0,0,0.25); margin-bottom: 8px;">
+                            <div style="display: grid; grid-template-columns: repeat(8, 1fr); gap: 6px;">
+                                <span style="cursor: pointer; font-size: 18px; padding: 6px; text-align: center; border-radius: 6px; transition: background 0.2s;" onclick="insertEmoji('😀')" onmouseover="this.style.background='var(--bg-hover)'" onmouseout="this.style.background='transparent'">😀</span>
+                                <span style="cursor: pointer; font-size: 18px; padding: 6px; text-align: center; border-radius: 6px; transition: background 0.2s;" onclick="insertEmoji('😂')" onmouseover="this.style.background='var(--bg-hover)'" onmouseout="this.style.background='transparent'">😂</span>
+                                <span style="cursor: pointer; font-size: 18px; padding: 6px; text-align: center; border-radius: 6px; transition: background 0.2s;" onclick="insertEmoji('❤️')" onmouseover="this.style.background='var(--bg-hover)'" onmouseout="this.style.background='transparent'">❤️</span>
+                                <span style="cursor: pointer; font-size: 18px; padding: 6px; text-align: center; border-radius: 6px; transition: background 0.2s;" onclick="insertEmoji('🔥')" onmouseover="this.style.background='var(--bg-hover)'" onmouseout="this.style.background='transparent'">🔥</span>
+                                <span style="cursor: pointer; font-size: 18px; padding: 6px; text-align: center; border-radius: 6px; transition: background 0.2s;" onclick="insertEmoji('👍')" onmouseover="this.style.background='var(--bg-hover)'" onmouseout="this.style.background='transparent'">👍</span>
+                                <span style="cursor: pointer; font-size: 18px; padding: 6px; text-align: center; border-radius: 6px; transition: background 0.2s;" onclick="insertEmoji('📈')" onmouseover="this.style.background='var(--bg-hover)'" onmouseout="this.style.background='transparent'">📈</span>
+                                <span style="cursor: pointer; font-size: 18px; padding: 6px; text-align: center; border-radius: 6px; transition: background 0.2s;" onclick="insertEmoji('🚀')" onmouseover="this.style.background='var(--bg-hover)'" onmouseout="this.style.background='transparent'">🚀</span>
+                                <span style="cursor: pointer; font-size: 18px; padding: 6px; text-align: center; border-radius: 6px; transition: background 0.2s;" onclick="insertEmoji('💰')" onmouseover="this.style.background='var(--bg-hover)'" onmouseout="this.style.background='transparent'">💰</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Action Buttons Right -->
+                    <div style="display: flex; flex-direction: column; gap: 8px;">
+                        <button class="icon-btn" title="Options" onclick="toggleSignalOptions()" style="width: 38px; height: 38px; padding: 0; background: var(--bg-hover); border: 1px solid var(--border);">
+                            <i class="fas fa-sliders-h"></i>
+                        </button>
+                        <button class="submit-btn" onclick="broadcastSignal()" title="Send Signal" style="width: 38px; height: 38px; padding: 0; display: flex; align-items: center; justify-content: center; margin: 0; border: none; background: linear-gradient(135deg, var(--green) 0%, #00b050 100%); cursor: pointer; transition: all 0.3s;">
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Footer with Options -->
+                <div style="display: flex; gap: 12px; align-items: center; padding-top: 12px; border-top: 1px solid var(--border); flex-wrap: wrap;">
+                    <select class="form-select" id="broadcastAgent" style="margin: 0; padding: 8px 12px; font-size: 12px; background: var(--bg-secondary); border: 1px solid var(--border); border-radius: 6px; flex: 1; min-width: 120px;">
+                        <option>Trading Signal</option>
+                        <option>Alert</option>
+                        <option>Market Update</option>
+                        <option>Analysis</option>
+                    </select>
+                    
+                    <select class="form-select" id="broadcastTier" style="margin: 0; padding: 8px 12px; font-size: 12px; background: var(--bg-secondary); border: 1px solid var(--border); border-radius: 6px; flex: 1; min-width: 120px;">
+                        <option>All Users</option>
+                        <option>Elite Only</option>
+                        <option>Alpha+</option>
+                        <option>Standard</option>
+                    </select>
+                    
+                    <span style="font-size: 11px; color: var(--text-tertiary); white-space: nowrap;" id="charCount">0/500</span>
+                </div>
+                
+                <!-- Expandable Options -->
+                <div id="signalOptionsDropdown" style="display: none; margin-top: 14px; padding: 14px; background: var(--bg-secondary); border: 1px solid var(--border); border-radius: 12px; max-height: 400px; overflow-y: auto;">
+                    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px;">
+                        <div class="form-group" style="margin: 0;">
+                            <label class="form-label">Trading Pair</label>
+                            <select class="form-select" id="tradingPair" style="margin: 0;">
+                                <option>BTC/USDT</option>
+                                <option>ETH/USDT</option>
+                                <option>SOL/USDT</option>
+                                <option>XRP/USDT</option>
+                                <option>ADA/USDT</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group" style="margin: 0;">
+                            <label class="form-label">Signal Type</label>
+                            <select class="form-select" id="signalType" style="margin: 0;">
+                                <option>BUY</option>
+                                <option>SELL</option>
+                                <option>HOLD</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group" style="margin: 0;">
+                            <label class="form-label">Entry Price</label>
+                            <input type="number" class="form-input" placeholder="43,500" step="0.01" id="entryPrice" style="margin: 0;">
+                        </div>
+
+                        <div class="form-group" style="margin: 0;">
+                            <label class="form-label">Target Price</label>
+                            <input type="number" class="form-input" placeholder="45,000" step="0.01" id="targetPrice" style="margin: 0;">
+                        </div>
+
+                        <div class="form-group" style="margin: 0;">
+                            <label class="form-label">Stop Loss</label>
+                            <input type="number" class="form-input" placeholder="42,000" step="0.01" id="stopLoss" style="margin: 0;">
+                        </div>
+
+                        <div class="form-group" style="margin: 0;">
+                            <label class="form-label">Risk/Reward</label>
+                            <input type="text" class="form-input" placeholder="1:2" id="riskReward" style="margin: 0;">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <style>
+                @keyframes pulse {
+                    0%, 100% { opacity: 1; }
+                    50% { opacity: 0.5; }
+                }
+            </style>
+            
+            <div style="display: flex; gap: 20px; height: auto; flex: 0; max-height: 200px;">
+                <!-- Chat Area -->
+                <div style="flex: 1; display: flex; flex-direction: column; background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; overflow: hidden;">
+                    <!-- Messages -->
+                    <div id="signalMessages" style="flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 12px;">
+                        <div style="padding: 12px; background: var(--bg-hover); border-left: 3px solid var(--green); border-radius: 8px; font-size: 12px;">
+                            <strong>BTC/USDT - BUY</strong> <span style="color: var(--text-tertiary); float: right;">2 hrs ago</span>
+                            <div style="margin-top: 8px; color: var(--text-secondary);">Entry at $43,500 | Target $45,000 | SL $42,000</div>
+                            <div style="margin-top: 4px; font-size: 11px; color: var(--text-tertiary);"><i class="fas fa-users"></i> Elite, Alpha</div>
+                        </div>
+                        <div style="padding: 12px; background: var(--bg-hover); border-left: 3px solid var(--red); border-radius: 8px; font-size: 12px;">
+                            <strong>ETH/USDT - SELL</strong> <span style="color: var(--text-tertiary); float: right;">5 hrs ago</span>
+                            <div style="margin-top: 8px; color: var(--text-secondary);">Entry at $2,400 | Target $2,250 | SL $2,500</div>
+                            <div style="margin-top: 4px; font-size: 11px; color: var(--text-tertiary);"><i class="fas fa-users"></i> All Tiers</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Risk Management Tab -->
+        <div id="risk" class="tab-content">
+            <h2 style="margin-bottom:20px;font-size:20px;font-weight:700;">Trading Risk Management</h2>
+            <div class="content-grid">
+                <div class="card">
+                    <h3 style="margin-bottom:10px; font-weight:700;">System Risk Level</h3>
+                    <div style="font-size: 28px; font-weight: 800; color: var(--orange); margin: 15px 0;">4.2%</div>
+                    <p style="color: var(--text-tertiary); font-size: 12px;">Total exposure vs. capital reserve</p>
+                </div>
+                <div class="card">
+                    <h3 style="margin-bottom:10px; font-weight:700;">Max Leverage Used</h3>
+                    <div style="font-size: 28px; font-weight: 800; color: var(--green); margin: 15px 0;">1:250</div>
+                    <p style="color: var(--text-tertiary); font-size: 12px;">Current highest leverage in use</p>
+                </div>
+                <div class="card">
+                    <h3 style="margin-bottom:10px; font-weight:700;">Daily Risk Limit</h3>
+                    <div style="font-size: 28px; font-weight: 800; color: var(--blue); margin: 15px 0;">$2.5M</div>
+                    <p style="color: var(--text-tertiary); font-size: 12px;">Remaining: $1.8M (72% used)</p>
+                </div>
+                <div class="card">
+                    <h3 style="margin-bottom:10px; font-weight:700;">Margin Call Alerts</h3>
+                    <div style="font-size: 28px; font-weight: 800; color: var(--red); margin: 15px 0;">23</div>
+                    <p style="color: var(--text-tertiary); font-size: 12px;">Accounts requiring attention</p>
+                </div>
+            </div>
+            <div class="table-container" style="margin-top: 20px;">
+                <table>
+                    <thead>
+                        <tr><th>User</th><th>Pair</th><th>Exposure</th><th>Leverage</th><th>Risk %</th><th>Status</th><th>Action</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>user_1223</td><td>EUR/USD</td><td>$45,000</td><td>1:200</td><td>3.2%</td><td><span class="status-badge status-active">Normal</span></td><td><button class="btn">Monitor</button></td></tr>
+                        <tr><td>user_4567</td><td>GBP/USD</td><td>$127,500</td><td>1:500</td><td>8.5%</td><td><span style="background: rgba(245,158,11,0.2); color: var(--orange); padding: 6px 12px; border-radius: 6px; font-size: 11px; font-weight: 700;">High</span></td><td><button class="btn">Reduce</button></td></tr>
+                        <tr><td>user_8901</td><td>AUD/USD</td><td>$89,200</td><td>1:100</td><td>5.1%</td><td><span class="status-badge status-active">Normal</span></td><td><button class="btn">Monitor</button></td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Liquidity Tab -->
+        <div id="liquidity" class="tab-content">
+            <h2 style="margin-bottom:20px;font-size:20px;font-weight:700;">Liquidity Monitoring</h2>
+            <div class="content-grid">
+                <div class="card">
+                    <h3 style="margin-bottom:10px; font-weight:700;">Total Liquidity</h3>
+                    <div style="font-size: 28px; font-weight: 800; color: var(--green); margin: 15px 0;">$48.5M</div>
+                    <p style="color: var(--text-tertiary); font-size: 12px;">Across all counterparties</p>
+                </div>
+                <div class="card">
+                    <h3 style="margin-bottom:10px; font-weight:700;">Reserve Ratio</h3>
+                    <div style="font-size: 28px; font-weight: 800; color: var(--blue); margin: 15px 0;">42%</div>
+                    <p style="color: var(--text-tertiary); font-size: 12px;">Capital reserve available</p>
+                </div>
+                <div class="card">
+                    <h3 style="margin-bottom:10px; font-weight:700;">Major Pairs Depth</h3>
+                    <div style="font-size: 28px; font-weight: 800; color: var(--green); margin: 15px 0;">$12.3M</div>
+                    <p style="color: var(--text-tertiary); font-size: 12px;">Avg buy/sell spread depth</p>
+                </div>
+                <div class="card">
+                    <h3 style="margin-bottom:10px; font-weight:700;">Critical Pairs Alert</h3>
+                    <div style="font-size: 28px; font-weight: 800; color: var(--orange); margin: 15px 0;">2</div>
+                    <p style="color: var(--text-tertiary); font-size: 12px;">Pairs with low liquidity</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Leverage Controls Tab -->
+        <div id="leverage" class="tab-content">
+            <h2 style="margin-bottom:20px;font-size:20px;font-weight:700;">Leverage Controls</h2>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr><th>Tier</th><th>Max Leverage</th><th>Users</th><th>Min Deposit</th><th>Requirements</th><th>Action</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Elite</td><td>1:500</td><td>234</td><td>$5,000</td><td>Verified ID + Bank</td><td><button class="btn">Edit</button></td></tr>
+                        <tr><td>Alpha</td><td>1:250</td><td>1,247</td><td>$1,000</td><td>Verified ID</td><td><button class="btn">Edit</button></td></tr>
+                        <tr><td>Standard</td><td>1:100</td><td>5,892</td><td>$100</td><td>Email Verified</td><td><button class="btn">Edit</button></td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="card" style="margin-top: 20px;">
+                <h3 style="margin-bottom:15px; font-weight:700;">Update Leverage Settings</h3>
+                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px;">
+                    <div>
+                        <label class="form-label">Tier</label>
+                        <select class="form-select" style="margin: 0;"><option>Elite</option><option>Alpha</option><option>Standard</option></select>
+                    </div>
+                    <div>
+                        <label class="form-label">Max Leverage</label>
+                        <input type="text" class="form-input" value="1:500" style="margin: 0;">
+                    </div>
+                    <div>
+                        <label class="form-label">Min Deposit</label>
+                        <input type="text" class="form-input" value="$5,000" style="margin: 0;">
+                    </div>
+                </div>
+                <button class="submit-btn" style="margin-top: 15px;">Update Leverage</button>
+            </div>
+        </div>
+
+        <!-- Funding Tab -->
+        <div id="funding" class="tab-content">
+            <h2 style="margin-bottom:20px;font-size:20px;font-weight:700;">Account Funding & Withdrawals</h2>
+            <div class="content-grid">
+                <div class="card">
+                    <h3 style="margin-bottom:10px; font-weight:700;">Today's Deposits</h3>
+                    <div style="font-size: 28px; font-weight: 800; color: var(--green); margin: 15px 0;">$243,500</div>
+                    <p style="color: var(--text-tertiary); font-size: 12px;">156 transactions</p>
+                </div>
+                <div class="card">
+                    <h3 style="margin-bottom:10px; font-weight:700;">Pending Withdrawals</h3>
+                    <div style="font-size: 28px; font-weight: 800; color: var(--orange); margin: 15px 0;">$89,200</div>
+                    <p style="color: var(--text-tertiary); font-size: 12px;">42 requests awaiting approval</p>
+                </div>
+                <div class="card">
+                    <h3 style="margin-bottom:10px; font-weight:700;">Failed Transactions</h3>
+                    <div style="font-size: 28px; font-weight: 800; color: var(--red); margin: 15px 0;">7</div>
+                    <p style="color: var(--text-tertiary); font-size: 12px;">Requires investigation</p>
+                </div>
+                <div class="card">
+                    <h3 style="margin-bottom:10px; font-weight:700;">Available Balance</h3>
+                    <div style="font-size: 28px; font-weight: 800; color: var(--blue); margin: 15px 0;">$15.2M</div>
+                    <p style="color: var(--text-tertiary); font-size: 12px;">Operational funds</p>
+                </div>
+            </div>
+            <div class="table-container" style="margin-top: 20px;">
+                <table>
+                    <thead>
+                        <tr><th>Date</th><th>User</th><th>Type</th><th>Amount</th><th>Method</th><th>Status</th><th>Action</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>2026-02-12 14:23</td><td>user_5673</td><td>Deposit</td><td>$5,000</td><td>Bank Wire</td><td><span class="status-badge status-active">Completed</span></td><td><button class="btn">View</button></td></tr>
+                        <tr><td>2026-02-12 13:45</td><td>user_8234</td><td>Withdrawal</td><td>$2,500</td><td>Crypto</td><td><span style="background: rgba(245,158,11,0.2); color: var(--orange); padding: 6px 12px; border-radius: 6px; font-size: 11px; font-weight: 700;">Pending</span></td><td><button class="btn">Approve</button></td></tr>
+                        <tr><td>2026-02-12 11:12</td><td>user_3421</td><td>Deposit</td><td>$10,000</td><td>Credit Card</td><td><span class="status-badge status-active">Completed</span></td><td><button class="btn">View</button></td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Commissions Tab -->
+        <div id="commissions" class="tab-content">
+            <h2 style="margin-bottom:20px;font-size:20px;font-weight:700;">Commission & Fee Management</h2>
+            <div class="content-grid">
+                <div class="card">
+                    <h3 style="margin-bottom:10px; font-weight:700;">Today's Revenue</h3>
+                    <div style="font-size: 28px; font-weight: 800; color: var(--green); margin: 15px 0;">$12,450</div>
+                    <p style="color: var(--text-tertiary); font-size: 12px;">From 2,340 trades</p>
+                </div>
+                <div class="card">
+                    <h3 style="margin-bottom:10px; font-weight:700;">Weekly Revenue</h3>
+                    <div style="font-size: 28px; font-weight: 800; color: var(--green); margin: 15px 0;">$87,340</div>
+                    <p style="color: var(--text-tertiary); font-size: 12px;">Spread & commission income</p>
+                </div>
+                <div class="card">
+                    <h3 style="margin-bottom:10px; font-weight:700;">Avg Spread (Pips)</h3>
+                    <div style="font-size: 28px; font-weight: 800; color: var(--blue); margin: 15px 0;">1.8</div>
+                    <p style="color: var(--text-tertiary); font-size: 12px;">Across all major pairs</p>
+                </div>
+                <div class="card">
+                    <h3 style="margin-bottom:10px; font-weight:700;">Rebate Paid</h3>
+                    <div style="font-size: 28px; font-weight: 800; color: var(--orange); margin: 15px 0;">$3,240</div>
+                    <p style="color: var(--text-tertiary); font-size: 12px;">IB & affiliate commissions</p>
+                </div>
+            </div>
+            <div class="card" style="margin-top: 20px;">
+                <h3 style="margin-bottom:15px; font-weight:700;">Commission Structure</h3>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr><th>Account Tier</th><th>Spread (Pips)</th><th>Commission/Lot</th><th>Rebate %</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>Elite</td><td>0.8 - 1.2</td><td>$2</td><td>35%</td></tr>
+                            <tr><td>Alpha</td><td>1.2 - 1.8</td><td>$3</td><td>25%</td></tr>
+                            <tr><td>Standard</td><td>1.8 - 2.5</td><td>$4</td><td>15%</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Compliance Tab -->
+        <div id="compliance" class="tab-content">
+            <h2 style="margin-bottom:20px;font-size:20px;font-weight:700;">KYC/AML Compliance</h2>
+            <div class="content-grid">
+                <div class="card">
+                    <h3 style="margin-bottom:10px; font-weight:700;">Pending KYC</h3>
+                    <div style="font-size: 28px; font-weight: 800; color: var(--orange); margin: 15px 0;">342</div>
+                    <p style="color: var(--text-tertiary); font-size: 12px;">Accounts awaiting verification</p>
+                </div>
+                <div class="card">
+                    <h3 style="margin-bottom:10px; font-weight:700;">Verified Accounts</h3>
+                    <div style="font-size: 28px; font-weight: 800; color: var(--green); margin: 15px 0;">7,234</div>
+                    <p style="color: var(--text-tertiary); font-size: 12px;">Fully compliant accounts</p>
+                </div>
+                <div class="card">
+                    <h3 style="margin-bottom:10px; font-weight:700;">PEP Alerts</h3>
+                    <div style="font-size: 28px; font-weight: 800; color: var(--red); margin: 15px 0;">3</div>
+                    <p style="color: var(--text-tertiary); font-size: 12px;">Politically Exposed Persons</p>
+                </div>
+                <div class="card">
+                    <h3 style="margin-bottom:10px; font-weight:700;">AML Flags</h3>
+                    <div style="font-size: 28px; font-weight: 800; color: var(--red); margin: 15px 0;">8</div>
+                    <p style="color: var(--text-tertiary); font-size: 12px;">Suspicious activity detected</p>
+                </div>
+            </div>
+            <div class="table-container" style="margin-top: 20px;">
+                <table>
+                    <thead>
+                        <tr><th>User</th><th>Status</th><th>Documents</th><th>Risk Level</th><th>Action</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>user_2847</td><td><span style="background: rgba(245,158,11,0.2); color: var(--orange); padding: 6px 12px; border-radius: 6px; font-size: 11px; font-weight: 700;">Pending</span></td><td>ID ✓</td><td>Low</td><td><button class="btn">Review</button></td></tr>
+                        <tr><td>user_5934</td><td><span class="status-badge status-inactive">Rejected</span></td><td>ID ✗ Docs ✗</td><td>High</td><td><button class="btn">Investigate</button></td></tr>
+                        <tr><td>user_7823</td><td><span class="status-badge status-active">Approved</span></td><td>ID ✓ Bank ✓</td><td>Low</td><td><button class="btn">View</button></td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Restrictions Tab -->
+        <div id="restrictions" class="tab-content">
+            <h2 style="margin-bottom:20px;font-size:20px;font-weight:700;">Trading Restrictions & Limits</h2>
+            <div class="content-grid">
+                <div class="card">
+                    <h3 style="margin-bottom:10px; font-weight:700;">Restricted Accounts</h3>
+                    <div style="font-size: 28px; font-weight: 800; color: var(--red); margin: 15px 0;">47</div>
+                    <p style="color: var(--text-tertiary); font-size: 12px;">Active trading restrictions</p>
+                </div>
+                <div class="card">
+                    <h3 style="margin-bottom:10px; font-weight:700;">Suspended Accounts</h3>
+                    <div style="font-size: 28px; font-weight: 800; color: var(--red); margin: 15px 0;">12</div>
+                    <p style="color: var(--text-tertiary); font-size: 12px;">Temporarily closed</p>
+                </div>
+                <div class="card">
+                    <h3 style="margin-bottom:10px; font-weight:700;">Banned Countries</h3>
+                    <div style="font-size: 28px; font-weight: 800; color: var(--orange); margin: 15px 0;">8</div>
+                    <p style="color: var(--text-tertiary); font-size: 12px;">Regulatory restrictions</p>
+                </div>
+                <div class="card">
+                    <h3 style="margin-bottom:10px; font-weight:700;">Daily Limit Changes</h3>
+                    <div style="font-size: 28px; font-weight: 800; color: var(--blue); margin: 15px 0;">15</div>
+                    <p style="color: var(--text-tertiary); font-size: 12px;">Applied this week</p>
+                </div>
+            </div>
+            <div class="table-container" style="margin-top: 20px;">
+                <table>
+                    <thead>
+                        <tr><th>User</th><th>Restriction Type</th><th>Reason</th><th>Status</th><th>Action</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>user_1234</td><td>Leverage Cap</td><td>Risk management</td><td><span class="status-badge status-inactive">Active</span></td><td><button class="btn">Manage</button></td></tr>
+                        <tr><td>user_5678</td><td>Trading Halt</td><td>Suspicious activity</td><td><span class="status-badge status-inactive">Active</span></td><td><button class="btn">Review</button></td></tr>
+                        <tr><td>user_9012</td><td>Daily Loss Limit</td><td>Account protection</td><td><span style="background: rgba(34,197,94,0.2); color: var(--green); padding: 6px 12px; border-radius: 6px; font-size: 11px; font-weight: 700;">Expired</span></td><td><button class="btn">Lift</button></td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+        <!-- Performance Tab -->
+        <div id="performance" class="tab-content">
+            <h2 style="margin-bottom:20px;font-size:20px;font-weight:700;">Platform Performance Metrics</h2>
+            <div class="content-grid">
+                <div class="card">
+                    <h3 style="margin-bottom:10px; font-weight:700;">Platform Uptime</h3>
+                    <div style="font-size: 28px; font-weight: 800; color: var(--green); margin: 15px 0;">99.98%</div>
+                    <p style="color: var(--text-tertiary); font-size: 12px;">Last 30 days</p>
+                </div>
+                <div class="card">
+                    <h3 style="margin-bottom:10px; font-weight:700;">Avg Response Time</h3>
+                    <div style="font-size: 28px; font-weight: 800; color: var(--blue); margin: 15px 0;">42ms</div>
+                    <p style="color: var(--text-tertiary); font-size: 12px;">Server latency</p>
+                </div>
+                <div class="card">
+                    <h3 style="margin-bottom:10px; font-weight:700;">Total Transactions</h3>
+                    <div style="font-size: 28px; font-weight: 800; color: var(--green); margin: 15px 0;">2.4M</div>
+                    <p style="color: var(--text-tertiary); font-size: 12px;">Last 24 hours</p>
+                </div>
+                <div class="card">
+                    <h3 style="margin-bottom:10px; font-weight:700;">Peak TPS</h3>
+                    <div style="font-size: 28px; font-weight: 800; color: var(--orange); margin: 15px 0;">8,420</div>
+                    <p style="color: var(--text-tertiary); font-size: 12px;">Transactions/sec</p>
+                </div>
+            </div>
+            <div class="table-container" style="margin-top: 20px;">
+                <table>
+                    <thead>
+                        <tr><th>Service</th><th>Status</th><th>Uptime</th><th>Avg Response</th><th>Errors (24h)</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Trading Engine</td><td><span class="status-badge status-active">Operational</span></td><td>99.99%</td><td>38ms</td><td>0</td></tr>
+                        <tr><td>Payment Gateway</td><td><span class="status-badge status-active">Operational</span></td><td>99.97%</td><td>125ms</td><td>2</td></tr>
+                        <tr><td>API Server</td><td><span class="status-badge status-active">Operational</span></td><td>99.99%</td><td>45ms</td><td>0</td></tr>
+                        <tr><td>WebSocket</td><td><span class="status-badge status-active">Operational</span></td><td>99.95%</td><td>52ms</td><td>3</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Activity Feed Tab -->
+        <div id="activity" class="tab-content">
+            <h2 style="margin-bottom:20px;font-size:20px;font-weight:700;">Real-time Activity Feed</h2>
+            <div style="display: flex; flex-direction: column; gap: 12px; max-height: 70vh; overflow-y: auto;">
+                <div style="padding: 16px; background: var(--bg-secondary); border: 1px solid var(--border); border-left: 3px solid var(--green); border-radius: 8px;">
+                    <div style="display: flex; justify-content: space-between; align-items: start;">
+                        <div style="flex: 1;">
+                            <div style="font-weight: 700; color: var(--text-primary); margin-bottom: 4px;"><i class="fas fa-arrow-up" style="color: var(--green);"></i> New Trade Opened</div>
+                            <div style="font-size: 13px; color: var(--text-secondary);">user_8234 opened BTC/USDT at $43,250</div>
+                        </div>
+                        <div style="font-size: 11px; color: var(--text-tertiary);">14:32:21</div>
+                    </div>
+                </div>
+
+                <div style="padding: 16px; background: var(--bg-secondary); border: 1px solid var(--border); border-left: 3px solid var(--blue); border-radius: 8px;">
+                    <div style="display: flex; justify-content: space-between; align-items: start;">
+                        <div style="flex: 1;">
+                            <div style="font-weight: 700; color: var(--text-primary); margin-bottom: 4px;"><i class="fas fa-user-check" style="color: var(--blue);"></i> User Verified</div>
+                            <div style="font-size: 13px; color: var(--text-secondary);">user_5673 completed KYC verification</div>
+                        </div>
+                        <div style="font-size: 11px; color: var(--text-tertiary);">14:28:45</div>
+                    </div>
+                </div>
+
+                <div style="padding: 16px; background: var(--bg-secondary); border: 1px solid var(--border); border-left: 3px solid var(--green); border-radius: 8px;">
+                    <div style="display: flex; justify-content: space-between; align-items: start;">
+                        <div style="flex: 1;">
+                            <div style="font-weight: 700; color: var(--text-primary); margin-bottom: 4px;"><i class="fas fa-money-bill" style="color: var(--green);"></i> Deposit Confirmed</div>
+                            <div style="font-size: 13px; color: var(--text-secondary);">user_3421 deposited $10,000 via bank wire</div>
+                        </div>
+                        <div style="font-size: 11px; color: var(--text-tertiary);">14:15:12</div>
+                    </div>
+                </div>
+
+                <div style="padding: 16px; background: var(--bg-secondary); border: 1px solid var(--border); border-left: 3px solid var(--red); border-radius: 8px;">
+                    <div style="display: flex; justify-content: space-between; align-items: start;">
+                        <div style="flex: 1;">
+                            <div style="font-weight: 700; color: var(--text-primary); margin-bottom: 4px;"><i class="fas fa-exclamation-triangle" style="color: var(--red);"></i> High Risk Alert</div>
+                            <div style="font-size: 13px; color: var(--text-secondary);">user_7234 margin level dropped to 42%</div>
+                        </div>
+                        <div style="font-size: 11px; color: var(--text-tertiary);">14:10:33</div>
+                    </div>
+                </div>
+
+                <div style="padding: 16px; background: var(--bg-secondary); border: 1px solid var(--border); border-left: 3px solid var(--blue); border-radius: 8px;">
+                    <div style="display: flex; justify-content: space-between; align-items: start;">
+                        <div style="flex: 1;">
+                            <div style="font-weight: 700; color: var(--text-primary); margin-bottom: 4px;"><i class="fas fa-broadcast-tower" style="color: var(--blue);"></i> Signal Broadcast</div>
+                            <div style="font-size: 13px; color: var(--text-secondary);">BTC/USDT BUY signal sent to 3,421 users</div>
+                        </div>
+                        <div style="font-size: 11px; color: var(--text-tertiary);">14:05:18</div>
+                    </div>
+                </div>
+
+                <div style="padding: 16px; background: var(--bg-secondary); border: 1px solid var(--border); border-left: 3px solid var(--orange); border-radius: 8px;">
+                    <div style="display: flex; justify-content: space-between; align-items: start;">
+                        <div style="flex: 1;">
+                            <div style="font-weight: 700; color: var(--text-primary); margin-bottom: 4px;"><i class="fas fa-sync-alt" style="color: var(--orange);"></i> System Maintenance</div>
+                            <div style="font-size: 13px; color: var(--text-secondary);">Database backup completed (2.3GB)</div>
+                        </div>
+                        <div style="font-size: 11px; color: var(--text-tertiary);">13:45:02</div>
+                    </div>
+                </div>
+
+                <div style="padding: 16px; background: var(--bg-secondary); border: 1px solid var(--border); border-left: 3px solid var(--green); border-radius: 8px;">
+                    <div style="display: flex; justify-content: space-between; align-items: start;">
+                        <div style="flex: 1;">
+                            <div style="font-weight: 700; color: var(--text-primary); margin-bottom: 4px;"><i class="fas fa-arrow-down" style="color: var(--red);"></i> Trade Closed</div>
+                            <div style="font-size: 13px; color: var(--text-secondary);">user_4567 closed ETH/USDT position with +$2,340 profit</div>
+                        </div>
+                        <div style="font-size: 11px; color: var(--text-tertiary);">13:32:44</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Portfolio Overview Tab -->
+        <div id="portfolio" class="tab-content">
+            <h2 style="margin-bottom:20px;font-size:20px;font-weight:700;">Platform Portfolio Overview</h2>
+            <div class="content-grid">
+                <div class="card">
+                    <h3 style="margin-bottom:10px; font-weight:700;">Total User Assets</h3>
+                    <div style="font-size: 28px; font-weight: 800; color: var(--green); margin: 15px 0;">$542.8M</div>
+                    <p style="color: var(--text-tertiary); font-size: 12px;">All user balances combined</p>
+                </div>
+                <div class="card">
+                    <h3 style="margin-bottom:10px; font-weight:700;">Total Open Positions</h3>
+                    <div style="font-size: 28px; font-weight: 800; color: var(--blue); margin: 15px 0;">14,234</div>
+                    <p style="color: var(--text-tertiary); font-size: 12px;">Active trades</p>
+                </div>
+                <div class="card">
+                    <h3 style="margin-bottom:10px; font-weight:700;">Portfolio Profit</h3>
+                    <div style="font-size: 28px; font-weight: 800; color: var(--green); margin: 15px 0;">+$48.2M</div>
+                    <p style="color: var(--text-tertiary); font-size: 12px;">Total P&L this month</p>
+                </div>
+                <div class="card">
+                    <h3 style="margin-bottom:10px; font-weight:700;">Portfolio Beta</h3>
+                    <div style="font-size: 28px; font-weight: 800; color: var(--orange); margin: 15px 0;">1.24</div>
+                    <p style="color: var(--text-tertiary); font-size: 12px;">Market sensitivity</p>
+                </div>
+            </div>
+            <div class="table-container" style="margin-top: 20px;">
+                <table>
+                    <thead>
+                        <tr><th>Asset Pair</th><th>Users Holding</th><th>Total Value</th><th>Avg Position Size</th><th>Net P&L</th><th>Distribution</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><strong>BTC/USDT</strong></td><td>3,245</td><td>$287.4M</td><td>$88,450</td><td>+$28.3M</td><td>53%</td></tr>
+                        <tr><td><strong>ETH/USDT</strong></td><td>2,134</td><td>$156.8M</td><td>$73,420</td><td>+$12.1M</td><td>29%</td></tr>
+                        <tr><td><strong>SOL/USDT</strong></td><td>892</td><td>$67.2M</td><td>$75,360</td><td>+$5.8M</td><td>12%</td></tr>
+                        <tr><td><strong>Others</strong></td><td>1,245</td><td>$31.4M</td><td>$25,240</td><td>+$2.0M</td><td>6%</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Trading Analytics Tab -->
+        <div id="trading-analytics" class="tab-content">
+            <h2 style="margin-bottom:20px;font-size:20px;font-weight:700;">Advanced Trading Analytics</h2>
+            <div class="content-grid">
+                <div class="card">
+                    <h3 style="margin-bottom:10px; font-weight:700;">Avg Win Rate (All Users)</h3>
+                    <div style="font-size: 28px; font-weight: 800; color: var(--green); margin: 15px 0;">62.3%</div>
+                    <p style="color: var(--text-tertiary); font-size: 12px;">Last 30 days</p>
+                </div>
+                <div class="card">
+                    <h3 style="margin-bottom:10px; font-weight:700;">Daily Volume</h3>
+                    <div style="font-size: 28px; font-weight: 800; color: var(--blue); margin: 15px 0;">$2.8B</div>
+                    <p style="color: var(--text-tertiary); font-size: 12px;">Total trading volume</p>
+                </div>
+                <div class="card">
+                    <h3 style="margin-bottom:10px; font-weight:700;">Avg Trade Duration</h3>
+                    <div style="font-size: 28px; font-weight: 800; color: var(--orange); margin: 15px 0;">4.2h</div>
+                    <p style="color: var(--text-tertiary); font-size: 12px;">Average holding time</p>
+                </div>
+                <div class="card">
+                    <h3 style="margin-bottom:10px; font-weight:700;">Risk/Reward Ratio</h3>
+                    <div style="font-size: 28px; font-weight: 800; color: var(--green); margin: 15px 0;">1:2.8</div>
+                    <p style="color: var(--text-tertiary); font-size: 12px;">Average platform ratio</p>
+                </div>
+            </div>
+            <div class="table-container" style="margin-top: 20px;">
+                <table>
+                    <thead>
+                        <tr><th>Pair</th><th>Total Trades</th><th>Win Rate</th><th>Avg Profit</th><th>Volume 24h</th><th>Volatility</th><th>Trend</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><strong>BTC/USDT</strong></td><td>45,230</td><td><span style="color: var(--green);">64.2%</span></td><td>$342.50</td><td>$1.2B</td><td>3.4%</td><td><i class="fas fa-arrow-up" style="color: var(--green);"></i> Bullish</td></tr>
+                        <tr><td><strong>ETH/USDT</strong></td><td>32,145</td><td><span style="color: var(--green);">61.8%</span></td><td>$285.30</td><td>$890M</td><td>4.1%</td><td><i class="fas fa-arrow-up" style="color: var(--green);"></i> Bullish</td></tr>
+                        <tr><td><strong>SOL/USDT</strong></td><td>18,956</td><td><span style="color: var(--green);">59.4%</span></td><td>$152.80</td><td>$456M</td><td>5.8%</td><td><i class="fas fa-arrow-down" style="color: var(--red);"></i> Bearish</td></tr>
+                        <tr><td><strong>XRP/USDT</strong></td><td>12,834</td><td><span style="color: var(--orange);">57.2%</span></td><td>$98.40</td><td>$234M</td><td>4.2%</td><td><i class="fas fa-minus" style="color: var(--orange);"></i> Neutral</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Revenue & Commissions Tab -->
+        <div id="revenue-analytics" class="tab-content">
+            <h2 style="margin-bottom:20px;font-size:20px;font-weight:700;">Revenue & Commission Analytics</h2>
+            <div class="content-grid">
+                <div class="card">
+                    <h3 style="margin-bottom:10px; font-weight:700;">Monthly Revenue</h3>
+                    <div style="font-size: 28px; font-weight: 800; color: var(--green); margin: 15px 0;">$2.34M</div>
+                    <p style="color: var(--text-tertiary); font-size: 12px;">Current month</p>
+                </div>
+                <div class="card">
+                    <h3 style="margin-bottom:10px; font-weight:700;">Commission Paid</h3>
+                    <div style="font-size: 28px; font-weight: 800; color: var(--blue); margin: 15px 0;">$156.8K</div>
+                    <p style="color: var(--text-tertiary); font-size: 12px;">To co-admins & affiliates</p>
+                </div>
+                <div class="card">
+                    <h3 style="margin-bottom:10px; font-weight:700;">Avg Spread</h3>
+                    <div style="font-size: 28px; font-weight: 800; color: var(--orange); margin: 15px 0;">0.8 pips</div>
+                    <p style="color: var(--text-tertiary); font-size: 12px;">Average bid-ask spread</p>
+                </div>
+                <div class="card">
+                    <h3 style="margin-bottom:10px; font-weight:700;">Net Profit</h3>
+                    <div style="font-size: 28px; font-weight: 800; color: var(--green); margin: 15px 0;">$2.18M</div>
+                    <p style="color: var(--text-tertiary); font-size: 12px;">After all expenses</p>
+                </div>
+            </div>
+            <div class="table-container" style="margin-top: 20px;">
+                <table>
+                    <thead>
+                        <tr><th>Period</th><th>Total Revenue</th><th>Trading Fees</th><th>Withdrawal Fees</th><th>Commissions Paid</th><th>Net Profit</th><th>Growth %</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><strong>This Month</strong></td><td>$2.34M</td><td>$1.89M</td><td>$456K</td><td>$156.8K</td><td>$2.18M</td><td><span style="color: var(--green);">+12.5%</span></td></tr>
+                        <tr><td><strong>Last Month</strong></td><td>$2.08M</td><td>$1.67M</td><td>$412K</td><td>$134.2K</td><td>$1.95M</td><td><span style="color: var(--green);">+8.3%</span></td></tr>
+                        <tr><td><strong>2 Months Ago</strong></td><td>$1.92M</td><td>$1.52M</td><td>$385K</td><td>$128.5K</td><td>$1.79M</td><td><span style="color: var(--green);">+9.2%</span></td></tr>
+                        <tr><td><strong>Quarter Total</strong></td><td>$6.34M</td><td>$5.08M</td><td>$1.25M</td><td>$419.5K</td><td>$5.92M</td><td><span style="color: var(--green);">+10.3%</span></td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- User Insights Tab -->
+        <div id="user-insights" class="tab-content">
+            <h2 style="margin-bottom:20px;font-size:20px;font-weight:700;">User Insights & Behavior Analytics</h2>
+            <div class="content-grid">
+                <div class="card">
+                    <h3 style="margin-bottom:10px; font-weight:700;">Total Active Users</h3>
+                    <div style="font-size: 28px; font-weight: 800; color: var(--green); margin: 15px 0;">24,530</div>
+                    <p style="color: var(--text-tertiary); font-size: 12px;">Trading in last 7 days</p>
+                </div>
+                <div class="card">
+                    <h3 style="margin-bottom:10px; font-weight:700;">New Users Today</h3>
+                    <div style="font-size: 28px; font-weight: 800; color: var(--blue); margin: 15px 0;">342</div>
+                    <p style="color: var(--text-tertiary); font-size: 12px;">New signups</p>
+                </div>
+                <div class="card">
+                    <h3 style="margin-bottom:10px; font-weight:700;">Churn Rate</h3>
+                    <div style="font-size: 28px; font-weight: 800; color: var(--red); margin: 15px 0;">2.3%</div>
+                    <p style="color: var(--text-tertiary); font-size: 12px;">Monthly user attrition</p>
+                </div>
+                <div class="card">
+                    <h3 style="margin-bottom:10px; font-weight:700;">Retention Rate</h3>
+                    <div style="font-size: 28px; font-weight: 800; color: var(--green); margin: 15px 0;">97.7%</div>
+                    <p style="color: var(--text-tertiary); font-size: 12px;">30-day retention</p>
+                </div>
+            </div>
+            <div class="table-container" style="margin-top: 20px;">
+                <table>
+                    <thead>
+                        <tr><th>User Tier</th><th>Total Users</th><th>Avg Deposit</th><th>Avg Daily Trades</th><th>Avg Profit/Loss</th><th>Satisfaction</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><strong>Elite</strong></td><td>2,345</td><td>$145,320</td><td>23.4</td><td>+$8,420</td><td><span style="color: var(--green);">4.8★</span></td></tr>
+                        <tr><td><strong>Alpha</strong></td><td>5,823</td><td>$78,450</td><td>15.2</td><td>+$4,230</td><td><span style="color: var(--green);">4.6★</span></td></tr>
+                        <tr><td><strong>Standard</strong></td><td>16,362</td><td>$22,150</td><td>8.1</td><td>+$1,850</td><td><span style="color: var(--green);">4.3★</span></td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Compliance & AML Tab -->
+        <div id="compliance-advanced" class="tab-content">
+            <h2 style="margin-bottom:20px;font-size:20px;font-weight:700;">Advanced Compliance & AML Dashboard</h2>
+            <div class="content-grid">
+                <div class="card">
+                    <h3 style="margin-bottom:10px; font-weight:700;">Pending Verifications</h3>
+                    <div style="font-size: 28px; font-weight: 800; color: var(--orange); margin: 15px 0;">234</div>
+                    <p style="color: var(--text-tertiary); font-size: 12px;">Awaiting KYC approval</p>
+                </div>
+                <div class="card">
+                    <h3 style="margin-bottom:10px; font-weight:700;">Flagged Accounts</h3>
+                    <div style="font-size: 28px; font-weight: 800; color: var(--red); margin: 15px 0;">18</div>
+                    <p style="color: var(--text-tertiary); font-size: 12px;">Risk/AML alerts</p>
+                </div>
+                <div class="card">
+                    <h3 style="margin-bottom:10px; font-weight:700;">Avg Review Time</h3>
+                    <div style="font-size: 28px; font-weight: 800; color: var(--blue); margin: 15px 0;">2.4h</div>
+                    <p style="color: var(--text-tertiary); font-size: 12px;">KYC processing time</p>
+                </div>
+                <div class="card">
+                    <h3 style="margin-bottom:10px; font-weight:700;">Compliance Score</h3>
+                    <div style="font-size: 28px; font-weight: 800; color: var(--green); margin: 15px 0;">98.2%</div>
+                    <p style="color: var(--text-tertiary); font-size: 12px;">Regulatory adherence</p>
+                </div>
+            </div>
+            <div class="table-container" style="margin-top: 20px;">
+                <table>
+                    <thead>
+                        <tr><th>Alert Type</th><th>Count</th><th>Severity</th><th>Status</th><th>Action Required</th><th>Date</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Suspicious Activity</td><td>7</td><td><span style="color: var(--red);">Critical</span></td><td>Under Review</td><td>Escalate to Legal</td><td>2024-01-15</td></tr>
+                        <tr><td>PEP Alert</td><td>2</td><td><span style="color: var(--orange);">High</span></td><td>Pending</td><td>Enhanced Due Diligence</td><td>2024-01-14</td></tr>
+                        <tr><td>Large Transaction</td><td>45</td><td><span style="color: var(--orange);">Medium</span></td><td>Monitored</td><td>Continue Monitoring</td><td>2024-01-13</td></tr>
+                        <tr><td>New Account</td><td>156</td><td><span style="color: var(--blue);">Low</span></td><td>Cleared</td><td>None</td><td>2024-01-12</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- System Audit Log Tab -->
+        <div id="audit-logs" class="tab-content">
+            <h2 style="margin-bottom:20px;font-size:20px;font-weight:700;">System Audit & Security Logs</h2>
+            <div style="display: flex; gap: 20px; margin-bottom: 20px; flex-wrap: wrap;">
+                <div style="flex: 1; min-width: 250px; padding: 16px; background: var(--bg-secondary); border: 1px solid var(--border); border-radius: 8px;">
+                    <div style="font-size: 12px; color: var(--text-tertiary); margin-bottom: 8px; font-weight: 600;">SECURITY EVENTS</div>
+                    <div style="font-size: 24px; font-weight: 700; color: var(--blue);">12</div>
+                    <div style="font-size: 11px; color: var(--text-secondary); margin-top: 8px;"><i class="fas fa-info-circle"></i> Last 24 hours</div>
+                </div>
+                <div style="flex: 1; min-width: 250px; padding: 16px; background: var(--bg-secondary); border: 1px solid var(--border); border-radius: 8px;">
+                    <div style="font-size: 12px; color: var(--text-tertiary); margin-bottom: 8px; font-weight: 600;">FAILED LOGINS</div>
+                    <div style="font-size: 24px; font-weight: 700; color: var(--red);">34</div>
+                    <div style="font-size: 11px; color: var(--text-secondary); margin-top: 8px;"><i class="fas fa-exclamation-triangle"></i> Blocked attempts</div>
+                </div>
+                <div style="flex: 1; min-width: 250px; padding: 16px; background: var(--bg-secondary); border: 1px solid var(--border); border-radius: 8px;">
+                    <div style="font-size: 12px; color: var(--text-tertiary); margin-bottom: 8px; font-weight: 600;">API CHANGES</div>
+                    <div style="font-size: 24px; font-weight: 700; color: var(--orange);">8</div>
+                    <div style="font-size: 11px; color: var(--text-secondary); margin-top: 8px;"><i class="fas fa-code"></i> Configuration updates</div>
+                </div>
+            </div>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr><th>Timestamp</th><th>Event Type</th><th>User/Admin</th><th>Action</th><th>Status</th><th>IP Address</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>2024-01-15 14:42:33</td><td><span style="color: var(--blue); font-weight: 600;">Login</span></td><td>admin_001</td><td>Successful authentication</td><td><span style="color: var(--green);">Success</span></td><td>192.168.1.42</td></tr>
+                        <tr><td>2024-01-15 14:35:12</td><td><span style="color: var(--green); font-weight: 600;">User Edit</span></td><td>coadmin_034</td><td>Updated user kyc_status</td><td><span style="color: var(--green);">Success</span></td><td>192.168.1.87</td></tr>
+                        <tr><td>2024-01-15 14:22:45</td><td><span style="color: var(--red); font-weight: 600;">Failed Login</span></td><td>unknown_user</td><td>Invalid credentials attempted</td><td><span style="color: var(--red);">Blocked</span></td><td>203.45.67.89</td></tr>
+                        <tr><td>2024-01-15 14:15:08</td><td><span style="color: var(--orange); font-weight: 600;">Settings Change</span></td><td>admin_001</td><td>Modified leverage limits for Alpha tier</td><td><span style="color: var(--green);">Success</span></td><td>192.168.1.42</td></tr>
+                        <tr><td>2024-01-15 13:58:22</td><td><span style="color: var(--blue); font-weight: 600;">Export</span></td><td>coadmin_012</td><td>Downloaded user analytics report</td><td><span style="color: var(--green);">Success</span></td><td>192.168.1.22</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- User Detail Modal -->
+<div class="modal-overlay" id="userDetailModal">
+    <div class="modal">
+        <div class="modal-header">
+            <h2 class="modal-title">User Details</h2>
+            <div class="modal-close" onclick="closeModal('userDetailModal')">
+                <i class="fas fa-times"></i>
+            </div>
+        </div>
+        <div class="modal-body">
+            <!-- User Header -->
+            <div class="user-detail-header">
+                <div class="user-detail-avatar" id="modalUserAvatar">JD</div>
+                <div class="user-detail-info" style="flex: 1;">
+                    <h2 id="modalUserName">John Doe</h2>
+                    <p id="modalUserEmail">john@example.com</p>
+                    <p id="modalUserId" style="font-size: 11px; color: var(--text-tertiary);">ID: user_12345</p>
+                    <div class="user-detail-badges">
+                        <span class="tier-badge tier-elite" id="modalUserTier">Elite</span>
+                        <span class="status-badge status-active" id="modalUserStatus"><i class="fas fa-circle-check"></i>Active</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Financial Info -->
+            <div class="detail-section">
+                <div class="detail-section-title">Financial Information</div>
+                <div class="detail-grid">
+                    <div class="detail-card">
+                        <div class="detail-card-title">Account Balance</div>
+                        <div class="detail-card-value" id="modalBalance">$45,230.50</div>
+                    </div>
+                    <div class="detail-card">
+                        <div class="detail-card-title">Deposit Amount</div>
+                        <div class="detail-card-value" style="color: var(--blue); font-size: 16px;" id="modalDeposit">$50,000</div>
+                    </div>
+                    <div class="detail-card">
+                        <div class="detail-card-title">Profit/Loss</div>
+                        <div class="detail-card-value" style="color: var(--green); font-size: 16px;" id="modalPnL">+$5,230.50</div>
+                    </div>
+                    <div class="detail-card">
+                        <div class="detail-card-title">ROI</div>
+                        <div class="detail-card-value" style="color: var(--green); font-size: 16px;" id="modalROI">+10.46%</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Trading Stats -->
+            <div class="detail-section">
+                <div class="detail-section-title">Trading Statistics</div>
+                <div class="detail-row">
+                    <span class="detail-label">Total Trades</span>
+                    <span class="detail-value" id="modalTotalTrades">247</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Win Rate</span>
+                    <span class="detail-value" id="modalWinRate">64.5%</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Avg Trade Duration</span>
+                    <span class="detail-value" id="modalAvgDuration">4.2 hours</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Current Positions</span>
+                    <span class="detail-value" id="modalPositions">3</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Max Leverage Used</span>
+                    <span class="detail-value" id="modalMaxLeverage">1:200</span>
+                </div>
+            </div>
+
+            <!-- Account Info -->
+            <div class="detail-section">
+                <div class="detail-section-title">Account Information</div>
+                <div class="detail-row">
+                    <span class="detail-label">Account Type</span>
+                    <span class="detail-value" id="modalAccountType">Live Trading</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Registration Date</span>
+                    <span class="detail-value" id="modalRegDate">2025-08-15</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Last Login</span>
+                    <span class="detail-value" id="modalLastLogin">2 hours ago</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Verification Status</span>
+                    <span class="detail-value" id="modalVerified" style="color: var(--green);">✓ Verified</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Country</span>
+                    <span class="detail-value" id="modalCountry">United States</span>
+                </div>
+            </div>
+
+            <!-- Risk Profile -->
+            <div class="detail-section">
+                <div class="detail-section-title">Risk Profile</div>
+                <div class="detail-row">
+                    <span class="detail-label">Risk Level</span>
+                    <span class="detail-value" id="modalRisk" style="color: var(--green);">Low</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Current Exposure</span>
+                    <span class="detail-value" id="modalExposure">$45,000</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Margin Level</span>
+                    <span class="detail-value" id="modalMargin">2,150%</span>
+                </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="modal-actions">
+                <button class="modal-btn" onclick="editUserDetails()">
+                    <i class="fas fa-edit"></i> Edit Account
+                </button>
+                <button class="modal-btn" onclick="viewUserHistory()">
+                    <i class="fas fa-history"></i> View History
+                </button>
+                <button class="modal-btn modal-btn-danger" onclick="restrictUser()">
+                    <i class="fas fa-ban"></i> Restrict
+                </button>
+                <button class="modal-btn modal-btn-danger" onclick="deactivateFromModal()">
+                    <i class="fas fa-power-off"></i> Deactivate
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Load saved theme
+const savedTheme = localStorage.getItem('theme');
+if (savedTheme && savedTheme.toLowerCase() !== 'dark') {
+    document.body.classList.add(`theme-${savedTheme.toLowerCase()}`);
+}
+
+const sidebar = document.getElementById('sidebar');
+let sidebarMode = localStorage.getItem('sidebarMode') || 'hover';
+
+function setSidebarMode(mode) {
+    sidebarMode = mode;
+    localStorage.setItem('sidebarMode', mode);
+    
+    sidebar.classList.remove('expanded', 'collapsed', 'hover-mode');
+    
+    if (mode === 'expanded') {
+        sidebar.classList.add('expanded');
+    } else if (mode === 'collapsed') {
+        sidebar.classList.add('collapsed');
+    } else {
+        sidebar.classList.add('hover-mode');
+    }
+    
+    // Update radio buttons
+    document.getElementById('sbExpanded').checked = (mode === 'expanded');
+    document.getElementById('sbCollapsed').checked = (mode === 'collapsed');
+    document.getElementById('sbHover').checked = (mode === 'hover');
+    
+    // Close menu
+    document.getElementById('sidebarSettingsMenu').classList.remove('show');
+}
+
+function toggleSidebarSettings() {
+    const menu = document.getElementById('sidebarSettingsMenu');
+    menu.classList.toggle('show');
+}
+
+// Close menu when clicking outside
+document.addEventListener('click', (e) => {
+    const menu = document.getElementById('sidebarSettingsMenu');
+    const btn = document.getElementById('sidebarSettingsBtn');
+    if (!e.target.closest('#sidebarSettingsBtn') && !e.target.closest('.sidebar-settings-menu')) {
+        menu.classList.remove('show');
+    }
+});
+
+// Hover mode detection for desktop
+sidebar.addEventListener('mouseenter', () => {
+    if (sidebarMode === 'hover') {
+        sidebar.classList.add('hovered');
+    }
+});
+
+sidebar.addEventListener('mouseleave', () => {
+    sidebar.classList.remove('hovered');
+});
+
+// Initialize sidebar mode
+setSidebarMode(sidebarMode);
+
+function switchTab(tabName) {
+    // Hide all tabs
+    document.querySelectorAll('.tab-content').forEach(tab => {
+        tab.classList.remove('active');
+    });
+    document.querySelectorAll('.sidebar-item').forEach(item => {
+        item.classList.remove('active');
+    });
+
+    // Show selected tab
+    document.getElementById(tabName).classList.add('active');
+    event.target.closest('.sidebar-item').classList.add('active');
+}
+
+function editUser(userId) {
+    // Show user detail modal with sample data
+    showUserDetailModal({
+        id: userId,
+        name: 'John Doe',
+        email: 'john@example.com',
+        avatar: 'JD',
+        tier: 'Elite',
+        status: 'Active',
+        balance: '$45,230.50',
+        deposit: '$50,000',
+        pnl: '+$5,230.50',
+        roi: '+10.46%',
+        totalTrades: 247,
+        winRate: '64.5%',
+        avgDuration: '4.2 hours',
+        positions: 3,
+        maxLeverage: '1:200',
+        accountType: 'Live Trading',
+        regDate: '2025-08-15',
+        lastLogin: '2 hours ago',
+        verified: true,
+        country: 'United States',
+        riskLevel: 'Low',
+        exposure: '$45,000',
+        margin: '2,150%'
+    });
+}
+
+function showUserDetailModal(userData) {
+    document.getElementById('modalUserName').textContent = userData.name;
+    document.getElementById('modalUserEmail').textContent = userData.email;
+    document.getElementById('modalUserId').textContent = 'ID: ' + userData.id;
+    document.getElementById('modalUserAvatar').textContent = userData.avatar;
+    document.getElementById('modalUserTier').textContent = userData.tier;
+    document.getElementById('modalUserStatus').innerHTML = '<i class="fas fa-circle-check"></i> ' + userData.status;
+    
+    document.getElementById('modalBalance').textContent = userData.balance;
+    document.getElementById('modalDeposit').textContent = userData.deposit;
+    document.getElementById('modalPnL').textContent = userData.pnl;
+    document.getElementById('modalROI').textContent = userData.roi;
+    
+    document.getElementById('modalTotalTrades').textContent = userData.totalTrades;
+    document.getElementById('modalWinRate').textContent = userData.winRate;
+    document.getElementById('modalAvgDuration').textContent = userData.avgDuration;
+    document.getElementById('modalPositions').textContent = userData.positions;
+    document.getElementById('modalMaxLeverage').textContent = userData.maxLeverage;
+    
+    document.getElementById('modalAccountType').textContent = userData.accountType;
+    document.getElementById('modalRegDate').textContent = userData.regDate;
+    document.getElementById('modalLastLogin').textContent = userData.lastLogin;
+    document.getElementById('modalVerified').textContent = userData.verified ? '✓ Verified' : '✗ Not Verified';
+    document.getElementById('modalCountry').textContent = userData.country;
+    
+    document.getElementById('modalRisk').textContent = userData.riskLevel;
+    document.getElementById('modalExposure').textContent = userData.exposure;
+    document.getElementById('modalMargin').textContent = userData.margin;
+    
+    document.getElementById('userDetailModal').classList.add('show');
+}
+
+function closeModal(modalId) {
+    document.getElementById(modalId).classList.remove('show');
+}
+
+function editUserDetails() {
+    alert('Opening user edit form...');
+}
+
+function viewUserHistory() {
+    alert('Showing trading history and transactions...');
+}
+
+function restrictUser() {
+    if (confirm('Are you sure you want to restrict this user?')) {
+        alert('User restricted successfully!');
+        closeModal('userDetailModal');
+    }
+}
+
+function deactivateFromModal() {
+    if (confirm('Are you sure you want to deactivate this user?')) {
+        alert('User deactivated successfully!');
+        closeModal('userDetailModal');
+    }
+}
+
+// Close modal when clicking outside
+document.addEventListener('click', function(e) {
+    const modal = document.getElementById('userDetailModal');
+    if (e.target === modal) {
+        closeModal('userDetailModal');
+    }
+});
+
+function activateUser(userId) {
+    alert('User ' + userId + ' activated!');
+}
+
+function deactivateUser(userId) {
+    alert('User ' + userId + ' deactivated!');
+}
+
+function editCoadmin(coadminId) {
+    alert('Editing co-admin: ' + coadminId);
+}
+
+function removeCoadmin(coadminId) {
+    alert('Co-admin ' + coadminId + ' removed!');
+}
+
+function handleSupport(supportId) {
+    alert('Handling support ticket: ' + supportId);
+}
+
+function viewSupport(supportId) {
+    alert('Viewing support ticket: ' + supportId);
+}
+
+function toggleSignalOptions() {
+    const dropdown = document.getElementById('signalOptionsDropdown');
+    dropdown.style.display = dropdown.style.display === 'none' ? 'block' : 'none';
+}
+
+function toggleEmojiPicker() {
+    const dropdown = document.getElementById('emojiPickerDropdown');
+    dropdown.style.display = dropdown.style.display === 'none' ? 'block' : 'none';
+}
+
+function insertEmoji(emoji) {
+    const input = document.getElementById('signalMessage');
+    input.value += emoji;
+    updateCharCount();
+    document.getElementById('emojiPickerDropdown').style.display = 'none';
+}
+
+function attachMedia() {
+    alert('Media attachment feature - Select image or GIF to attach');
+}
+
+function updateCharCount() {
+    const input = document.getElementById('signalMessage');
+    const charCount = document.getElementById('charCount');
+    charCount.textContent = (input.value.length) + '/500';
+}
+
+// Add character counter listener
+document.addEventListener('DOMContentLoaded', function() {
+    const messageInput = document.getElementById('signalMessage');
+    if (messageInput) {
+        messageInput.addEventListener('input', updateCharCount);
+        messageInput.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' && e.ctrlKey) {
+                broadcastSignal();
+            }
+        });
+    }
+});
+
+// Close dropdown when clicking outside
+document.addEventListener('click', function(e) {
+    const dropdown = document.getElementById('signalOptionsDropdown');
+    const button = e.target.closest('.icon-btn');
+    if (!button && dropdown) {
+        dropdown.style.display = 'none';
+    }
+});
+
+function broadcastSignal() {
+    const message = document.getElementById('signalMessage').value;
+    const pair = document.getElementById('tradingPair').value;
+    const type = document.getElementById('signalType').value;
+    const entry = document.getElementById('entryPrice').value;
+    const target = document.getElementById('targetPrice').value;
+    const stopLoss = document.getElementById('stopLoss').value;
+    const tiers = [];
+    
+    if (document.getElementById('tier-elite').checked) tiers.push('Elite');
+    if (document.getElementById('tier-alpha').checked) tiers.push('Alpha');
+    if (document.getElementById('tier-standard').checked) tiers.push('Standard');
+
+    if (!message || !entry || !target || !stopLoss || tiers.length === 0) {
+        alert('Please fill in all required fields');
+        return;
+    }
+
+    // Add message to chat
+    const messagesDiv = document.getElementById('signalMessages');
+    const signalDiv = document.createElement('div');
+    const now = new Date();
+    const timeStr = now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+    const tierStr = tiers.join(', ');
+    
+    signalDiv.style.cssText = 'padding: 12px; background: var(--bg-hover); border-left: 3px solid ' + (type === 'BUY' ? 'var(--green)' : type === 'SELL' ? 'var(--red)' : 'var(--orange)') + '; border-radius: 8px; font-size: 12px;';
+    signalDiv.innerHTML = `<strong>${pair} - ${type}</strong> <span style="color: var(--text-tertiary); float: right;">just now</span>
+                           <div style="margin-top: 8px; color: var(--text-secondary);">${message}</div>
+                           <div style="margin-top: 8px; color: var(--text-secondary);">Entry $${entry} | Target $${target} | SL $${stopLoss}</div>
+                           <div style="margin-top: 4px; font-size: 11px; color: var(--text-tertiary);"><i class="fas fa-users"></i> ${tierStr}</div>`;
+    
+    messagesDiv.appendChild(signalDiv);
+    messagesDiv.scrollTop = messagesDiv.scrollHeight;
+    
+    // Clear inputs
+    document.getElementById('signalMessage').value = '';
+    document.getElementById('entryPrice').value = '';
+    document.getElementById('targetPrice').value = '';
+    document.getElementById('stopLoss').value = '';
+    
+    // Close dropdown
+    document.getElementById('signalOptionsDropdown').style.display = 'none';
+}
+
+// Theme switcher
+const themeFab = document.getElementById('themeFab');
+const themes = ['dark', 'light', 'dark-blue', 'dark-purple', 'dark-green', 'ocean'];
+let currentThemeIndex = 0;
+
+themeFab.addEventListener('click', () => {
+    currentThemeIndex = (currentThemeIndex + 1) % themes.length;
+    const theme = themes[currentThemeIndex];
+    if (theme === 'dark') {
+        document.body.classList.remove(...themes.map(t => `theme-${t}`));
+    } else {
+        document.body.classList.remove(...themes.map(t => `theme-${t}`));
+        document.body.classList.add(`theme-${theme}`);
+    }
+    localStorage.setItem('theme', theme);
+});
+</script>
+</body>
+</html>

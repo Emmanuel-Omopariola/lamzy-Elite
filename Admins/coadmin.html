@@ -1,0 +1,1254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Co-Admin Panel - Lamzy Elite</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --bg-primary: #0a0a0a;
+            --bg-secondary: #121212;
+            --bg-tertiary: #1e1e1e;
+            --bg-hover: #2a2a2a;
+            --text-primary: #ffffff;
+            --text-secondary: #b0b0b0;
+            --text-tertiary: #808080;
+            --accent-primary: #ffffff;
+            --accent-hover: #f0f0f0;
+            --border: #2a2a2a;
+            --card-bg: #1a1a1a;
+            --green: #22c55e;
+            --red: #ef4444;
+            --orange: #f59e0b;
+            --blue: #2979f0;
+        }
+
+        body.theme-light {
+            --bg-primary: #f0f2f5;
+            --bg-secondary: #ffffff;
+            --bg-tertiary: #e4e7ea;
+            --bg-hover: #dcdfe3;
+            --text-primary: #202124;
+            --text-secondary: #5f6368;
+            --text-tertiary: #80868b;
+            --accent-primary: #1a73e8;
+            --accent-hover: #1558b0;
+            --border: #dadce0;
+            --card-bg: #ffffff;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            overflow: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .admin-container {
+            display: flex;
+            height: 100vh;
+        }
+
+        .sidebar {
+            width: 68px;
+            background: var(--card-bg);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            z-index: 50;
+            transition: width 0.25s cubic-bezier(0.4,0,0.2,1);
+            overflow-y: auto;
+            overflow-x: visible;
+            flex-shrink: 0;
+            height: 100vh;
+            max-height: 100vh;
+            padding-bottom: 60px;
+        }
+
+        .sidebar.expanded { width: 230px; }
+        .sidebar.hover-mode { width: 68px; z-index: 100; }
+        .sidebar.hover-mode:hover,
+        .sidebar.hover-mode.hovered { width: 230px; z-index: 200; }
+
+        .sidebar-section {
+            padding: 8px 0;
+            border-bottom: 1px solid var(--border);
+            flex-shrink: 0;
+        }
+
+        .sidebar-section:last-of-type { border-bottom: none; }
+
+        .section-title {
+            padding: 5px 22px 3px;
+            font-size: 10px;
+            font-weight: 700;
+            color: var(--text-tertiary);
+            text-transform: uppercase;
+            letter-spacing: 1.1px;
+            white-space: nowrap;
+            opacity: 0;
+            transition: opacity 0.25s;
+            pointer-events: none;
+        }
+
+        .section-title i {
+            display: inline-block;
+            width: 12px;
+            text-align: center;
+            margin-right: 3px;
+            font-size: 9px;
+        }
+
+        .sidebar.expanded .section-title,
+        .sidebar.hover-mode:hover .section-title,
+        .sidebar.hover-mode.hovered .section-title { 
+            opacity: 1;
+        }
+
+        .sidebar-item {
+            padding: 8px 22px;
+            height: 38px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            color: var(--text-secondary);
+            font-size: 12.5px;
+            font-weight: 600;
+            transition: all 0.15s;
+            white-space: nowrap;
+            border-left: 3px solid transparent;
+            margin: 0 6px 0 0;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .sidebar-item i {
+            width: 18px;
+            text-align: center;
+            flex-shrink: 0;
+            font-size: 13px;
+        }
+
+        .sidebar-label {
+            opacity: 0;
+            transition: opacity 0.25s;
+            display: inline;
+            margin-left: 8px;
+        }
+
+        .sidebar.expanded .sidebar-label,
+        .sidebar.hover-mode:hover .sidebar-label,
+        .sidebar.hover-mode.hovered .sidebar-label { opacity: 1; }
+
+        .sidebar-item:hover {
+            background: var(--bg-hover);
+            color: var(--accent-primary);
+        }
+
+        .sidebar-item.active {
+            background: var(--bg-hover);
+            color: var(--accent-primary);
+            border-left-color: var(--accent-primary);
+        }
+
+        .sidebar-item.active i { color: var(--accent-primary); }
+
+        .sidebar-footer {
+            margin-top: auto;
+            padding: 12px 6px;
+            border-top: 1px solid var(--border);
+            display: flex;
+            justify-content: center;
+        }
+
+        .sidebar-footer-btn {
+            width: 48px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--bg-hover);
+            border-radius: 8px;
+            cursor: pointer;
+            color: var(--text-secondary);
+            transition: all 0.2s;
+            position: relative;
+            font-size: 14px;
+        }
+
+        .sidebar-footer-btn:hover {
+            color: var(--accent-primary);
+            background: var(--bg-tertiary);
+        }
+
+        .sidebar-settings-menu {
+            position: fixed;
+            bottom: 80px;
+            left: 6px;
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            display: none;
+            flex-direction: column;
+            min-width: 180px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+            z-index: 999;
+            overflow: hidden;
+        }
+
+        .sidebar-settings-menu.show {
+            display: flex;
+        }
+
+        .settings-menu-header {
+            padding: 10px 14px;
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--text-tertiary);
+            text-transform: uppercase;
+            border-bottom: 1px solid var(--border);
+            letter-spacing: 0.5px;
+        }
+
+        .settings-menu-item {
+            padding: 10px 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            transition: background 0.15s;
+        }
+
+        .settings-menu-item:hover {
+            background: var(--bg-hover);
+        }
+
+        .settings-menu-item input[type="radio"] {
+            cursor: pointer;
+            accent-color: var(--accent-primary);
+        }
+
+        .settings-menu-item label {
+            cursor: pointer;
+            font-size: 12px;
+            color: var(--text-secondary);
+            flex: 1;
+        }
+
+        .top-navbar {
+            background: var(--card-bg);
+            border-bottom: 1px solid var(--border);
+            padding: 12px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 24px;
+            position: sticky;
+            top: 0;
+            z-index: 400;
+            height: 62px;
+            flex-shrink: 0;
+        }
+
+        .nav-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            flex: 1;
+        }
+
+        .nav-logo {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            height: 34px;
+        }
+
+        .logo-image {
+            height: 28px;
+            width: auto;
+        }
+
+        .nav-logo-text {
+            font-size: 18px;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            white-space: nowrap;
+        }
+
+        .nav-title {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--text-secondary);
+            padding-left: 16px;
+            border-left: 1px solid var(--border);
+        }
+
+        .nav-right {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-shrink: 0;
+        }
+
+        .icon-btn {
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--bg-hover);
+            border-radius: 8px;
+            cursor: pointer;
+            color: var(--text-secondary);
+            transition: all 0.2s;
+            position: relative;
+            font-size: 14px;
+        }
+
+        .icon-btn:hover {
+            background: var(--bg-tertiary);
+            color: var(--accent-primary);
+        }
+
+        .notification-badge {
+            position: absolute;
+            top: -4px;
+            right: -4px;
+            background: var(--red);
+            color: white;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            font-weight: 700;
+        }
+
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .tab-content {
+            display: none;
+            flex: 1;
+            overflow-y: auto;
+            padding: 24px;
+        }
+
+        .tab-content.active {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .content-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 20px;
+            align-content: start;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 20px;
+            transition: all 0.2s;
+        }
+
+        .card:hover {
+            border-color: var(--accent-primary);
+            background: var(--bg-hover);
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+        .status-active {
+            background: rgba(34, 197, 94, 0.2);
+            color: var(--green);
+        }
+
+        .status-inactive {
+            background: rgba(239, 68, 68, 0.2);
+            color: var(--red);
+        }
+
+        .btn {
+            padding: 8px 12px;
+            border: 1px solid var(--border);
+            background: var(--bg-secondary);
+            color: var(--text-secondary);
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 11px;
+            font-weight: 700;
+            transition: all 0.2s;
+        }
+
+        .btn:hover {
+            border-color: var(--accent-primary);
+            color: var(--accent-primary);
+        }
+
+        .table-container {
+            overflow-x: auto;
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead {
+            background: var(--bg-tertiary);
+            border-bottom: 1px solid var(--border);
+        }
+
+        th {
+            padding: 16px 20px;
+            text-align: left;
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: var(--text-tertiary);
+            letter-spacing: 0.5px;
+        }
+
+        td {
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border);
+            font-size: 13px;
+        }
+
+        tbody tr:hover {
+            background: var(--bg-hover);
+        }
+
+        .theme-fab {
+            position: fixed;
+            bottom: 28px;
+            right: 28px;
+            width: 50px;
+            height: 50px;
+            background: var(--card-bg);
+            border: 2px solid var(--border);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: var(--text-secondary);
+            z-index: 1990;
+            font-size: 18px;
+            transition: all 0.2s;
+        }
+
+        .theme-fab:hover {
+            border-color: var(--accent-primary);
+            color: var(--accent-primary);
+        }
+
+        @media (max-width: 480px) {
+            .sidebar {
+                width: 50px;
+            }
+
+            .sidebar.collapsed {
+                width: 50px;
+            }
+
+            .logo-image {
+                height: 24px;
+            }
+
+            .tab-content {
+                padding: 12px;
+            }
+
+            .content-grid {
+                grid-template-columns: 1fr;
+                gap: 12px;
+            }
+
+            .card {
+                padding: 12px;
+            }
+
+            table {
+                font-size: 11px;
+            }
+
+            th, td {
+                padding: 10px 12px;
+            }
+
+            .btn {
+                padding: 6px 8px;
+                font-size: 10px;
+            }
+
+            .theme-fab {
+                width: 42px;
+                height: 42px;
+                font-size: 16px;
+                bottom: 16px;
+                right: 16px;
+            }
+        }
+
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+    </style>
+</head>
+<body>
+<div class="top-navbar">
+    <div class="nav-left">
+        <div class="nav-logo" onclick="goToDashboard()">
+            <img src="../images/logo.png" alt="Lamzy Elite" class="logo-image">
+            <span class="nav-logo-text">Lamzy<span style="-webkit-text-fill-color: var(--accent-primary);">Elite</span></span>
+        </div>
+        <div class="nav-title">Co-Admin Panel</div>
+    </div>
+    <div class="nav-right">
+        <div class="icon-btn" onclick="toggleTheme()">
+            <i class="fas fa-circle-half-stroke"></i>
+        </div>
+        <div class="icon-btn" onclick="logout()">
+            <i class="fas fa-sign-out-alt"></i>
+        </div>
+    </div>
+</div>
+
+<div class="admin-container">
+    <div class="sidebar hover-mode" id="sidebar">
+        <div class="sidebar-section">
+            <div class="section-title"><i class="fas fa-signal"></i> Signals</div>
+            <div class="sidebar-item active" onclick="switchTab('signals')"><i class="fas fa-broadcast-tower"></i><span class="sidebar-label">Live Feed</span></div>
+            <div class="sidebar-item" onclick="switchTab('signal-perf')"><i class="fas fa-chart-line"></i><span class="sidebar-label">Performance</span></div>
+        </div>
+
+        <div class="sidebar-section">
+            <div class="section-title"><i class="fas fa-headset"></i> Support</div>
+            <div class="sidebar-item" onclick="switchTab('support')"><i class="fas fa-headset"></i><span class="sidebar-label">Tickets</span></div>
+            <div class="sidebar-item" onclick="switchTab('user-queries')"><i class="fas fa-comments"></i><span class="sidebar-label">User Queries</span></div>
+        </div>
+
+        <div class="sidebar-section">
+            <div class="section-title"><i class="fas fa-chart-line"></i> Analytics</div>
+            <div class="sidebar-item" onclick="switchTab('dashboard')"><i class="fas fa-chart-bar"></i><span class="sidebar-label">Dashboard</span></div>
+            <div class="sidebar-item" onclick="switchTab('trading-analytics')"><i class="fas fa-bar-chart"></i><span class="sidebar-label">Trading Data</span></div>
+            <div class="sidebar-item" onclick="switchTab('user-analytics')"><i class="fas fa-users"></i><span class="sidebar-label">User Metrics</span></div>
+        </div>
+
+        <div class="sidebar-section">
+            <div class="section-title"><i class="fas fa-exclamation"></i> Monitoring</div>
+            <div class="sidebar-item" onclick="switchTab('alerts')"><i class="fas fa-bell"></i><span class="sidebar-label">Alerts</span></div>
+            <div class="sidebar-item" onclick="switchTab('risk-monitor')"><i class="fas fa-exclamation-triangle"></i><span class="sidebar-label">Risk Monitor</span></div>
+        </div>
+
+        <div class="sidebar-section">
+            <div class="section-title"><i class="fas fa-globe"></i> Market Data</div>
+            <div class="sidebar-item" onclick="switchTab('market-watch')"><i class="fas fa-eye"></i><span class="sidebar-label">Market Watch</span></div>
+            <div class="sidebar-item" onclick="switchTab('pair-analytics')"><i class="fas fa-chart-pie"></i><span class="sidebar-label">Pair Analysis</span></div>
+            <div class="sidebar-item" onclick="switchTab('market-news')"><i class="fas fa-newspaper"></i><span class="sidebar-label">Market News</span></div>
+        </div>
+
+        <div class="sidebar-section">
+            <div class="section-title"><i class="fas fa-user-chart"></i> Client Management</div>
+            <div class="sidebar-item" onclick="switchTab('client-analytics')"><i class="fas fa-chart-bar"></i><span class="sidebar-label">Client Analytics</span></div>
+        </div>
+
+        <div class="sidebar-section">
+            <div class="section-title"><i class="fas fa-calculator"></i> Tools</div>
+            <div class="sidebar-item" onclick="switchTab('trading-tools')"><i class="fas fa-tools"></i><span class="sidebar-label">Trading Tools</span></div>
+        </div>
+
+        <!-- Sidebar Controls (Bottom) -->
+        <div class="sidebar-footer">
+            <div class="sidebar-footer-btn" id="sidebarSettingsBtn" onclick="toggleSidebarSettings()">
+                <i class="fas fa-sliders-h"></i>
+            </div>
+        </div>
+
+        <!-- Settings Dropdown Menu -->
+        <div class="sidebar-settings-menu" id="sidebarSettingsMenu">
+            <div class="settings-menu-header">Sidebar Mode</div>
+            <div class="settings-menu-item" onclick="setSidebarMode('expanded')">
+                <input type="radio" name="sb-mode" id="sbExpanded" value="expanded">
+                <label for="sbExpanded">Expanded</label>
+            </div>
+            <div class="settings-menu-item" onclick="setSidebarMode('collapsed')">
+                <input type="radio" name="sb-mode" id="sbCollapsed" value="collapsed">
+                <label for="sbCollapsed">Collapsed</label>
+            </div>
+            <div class="settings-menu-item" onclick="setSidebarMode('hover')">
+                <input type="radio" name="sb-mode" id="sbHover" value="hover" checked>
+                <label for="sbHover">Hover Mode</label>
+            </div>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <!-- Signals Tab -->
+        <div id="signals" class="tab-content active">
+            <h2 style="margin-bottom:20px;font-size:20px;font-weight:700;">Trading Signals</h2>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Time</th>
+                            <th>Pair</th>
+                            <th>Type</th>
+                            <th>Entry</th>
+                            <th>Target</th>
+                            <th>Stop Loss</th>
+                            <th>Tier</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>14:32</td>
+                            <td>BTC/USDT</td>
+                            <td><span style="color: var(--green); font-weight: 700;">BUY</span></td>
+                            <td>$43,500</td>
+                            <td>$45,000</td>
+                            <td>$42,000</td>
+                            <td>Elite, Alpha</td>
+                        </tr>
+                        <tr>
+                            <td>12:15</td>
+                            <td>ETH/USDT</td>
+                            <td><span style="color: var(--red); font-weight: 700;">SELL</span></td>
+                            <td>$2,400</td>
+                            <td>$2,250</td>
+                            <td>$2,500</td>
+                            <td>All Tiers</td>
+                        </tr>
+                        <tr>
+                            <td>10:45</td>
+                            <td>SOL/USDT</td>
+                            <td><span style="color: var(--green); font-weight: 700;">BUY</span></td>
+                            <td>$145</td>
+                            <td>$160</td>
+                            <td>$135</td>
+                            <td>Elite</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Support Tab -->
+        <div id="support" class="tab-content">
+            <h2 style="margin-bottom:20px;font-size:20px;font-weight:700;">Support Tickets</h2>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>User</th>
+                            <th>Subject</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>2026-02-11</td>
+                            <td>John Doe</td>
+                            <td>Cannot withdraw funds</td>
+                            <td><span class="status-badge status-inactive">Pending</span></td>
+                            <td><button class="btn" onclick="handleSupport('supp1')">Assist</button></td>
+                        </tr>
+                        <tr>
+                            <td>2026-02-10</td>
+                            <td>Sarah Miller</td>
+                            <td>Account verification issue</td>
+                            <td><span class="status-badge status-active">Resolved</span></td>
+                            <td><button class="btn" onclick="viewSupport('supp2')">View</button></td>
+                        </tr>
+                        <tr>
+                            <td>2026-02-10</td>
+                            <td>Alex Kumar</td>
+                            <td>Trading limits exceeded</td>
+                            <td><span class="status-badge status-inactive">Pending</span></td>
+                            <td><button class="btn" onclick="handleSupport('supp3')">Assist</button></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Signal Performance Tab -->
+        <div id="signal-perf" class="tab-content">
+            <h2 style="margin-bottom:20px;font-size:20px;font-weight:700;">Signal Performance Analysis</h2>
+            <div class="content-grid">
+                <div class="card">
+                    <h3 style="margin-bottom:10px; font-weight:700;">Win Rate</h3>
+                    <div style="font-size: 28px; font-weight: 800; color: var(--green); margin: 15px 0;">68.5%</div>
+                    <p style="color: var(--text-tertiary); font-size: 12px;">Based on 127 total signals</p>
+                </div>
+                <div class="card">
+                    <h3 style="margin-bottom:10px; font-weight:700;">Avg Profit Per Signal</h3>
+                    <div style="font-size: 28px; font-weight: 800; color: var(--green); margin: 15px 0;">+$2,340</div>
+                    <p style="color: var(--text-tertiary); font-size: 12px;">Average user gains</p>
+                </div>
+                <div class="card">
+                    <h3 style="margin-bottom:10px; font-weight:700;">Best Performing Pair</h3>
+                    <div style="font-size: 28px; font-weight: 800; color: var(--blue); margin: 15px 0;">BTC/USDT</div>
+                    <p style="color: var(--text-tertiary); font-size: 12px;">87% win rate on this pair</p>
+                </div>
+                <div class="card">
+                    <h3 style="margin-bottom:10px; font-weight:700;">Signals This Week</h3>
+                    <div style="font-size: 28px; font-weight: 800; color: var(--orange); margin: 15px 0;">23</div>
+                    <p style="color: var(--text-tertiary); font-size: 12px;">Broadcast to active users</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- User Queries Tab -->
+        <div id="user-queries" class="tab-content">
+            <h2 style="margin-bottom:20px;font-size:20px;font-weight:700;">User Queries & Questions</h2>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>User</th>
+                            <th>Question</th>
+                            <th>Category</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>2026-02-12 09:15</td>
+                            <td>user_3421</td>
+                            <td>How to read signals?</td>
+                            <td>Education</td>
+                            <td><button class="btn" onclick="respondQuery('q1')">Respond</button></td>
+                        </tr>
+                        <tr>
+                            <td>2026-02-11 16:42</td>
+                            <td>user_5678</td>
+                            <td>Best risk management?</td>
+                            <td>Education</td>
+                            <td><button class="btn" onclick="respondQuery('q2')">Respond</button></td>
+                        </tr>
+                        <tr>
+                            <td>2026-02-11 14:20</td>
+                            <td>user_2847</td>
+                            <td>Pair recommendation?</td>
+                            <td>Trading</td>
+                            <td><button class="btn" onclick="respondQuery('q3')">Respond</button></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Dashboard Tab -->
+        <div id="dashboard" class="tab-content">
+            <h2 style="margin-bottom:20px;font-size:20px;font-weight:700;">Co-Admin Dashboard</h2>
+            <div class="content-grid">
+                <div class="card">
+                    <h3 style="margin-bottom:10px; font-weight:700;">Active Users</h3>
+                    <div style="font-size: 28px; font-weight: 800; color: var(--green); margin: 15px 0;">2,847</div>
+                    <p style="color: var(--text-tertiary); font-size: 12px;">Trading in last 24h</p>
+                </div>
+                <div class="card">
+                    <h3 style="margin-bottom:10px; font-weight:700;">Total Trading Volume</h3>
+                    <div style="font-size: 28px; font-weight: 800; color: var(--blue); margin: 15px 0;">$487.2M</div>
+                    <p style="color: var(--text-tertiary); font-size: 12px;">Last 24 hours</p>
+                </div>
+                <div class="card">
+                    <h3 style="margin-bottom:10px; font-weight:700;">Support Tickets Open</h3>
+                    <div style="font-size: 28px; font-weight: 800; color: var(--orange); margin: 15px 0;">34</div>
+                    <p style="color: var(--text-tertiary); font-size: 12px;">Awaiting attention</p>
+                </div>
+                <div class="card">
+                    <h3 style="margin-bottom:10px; font-weight:700;">System Health</h3>
+                    <div style="font-size: 28px; font-weight: 800; color: var(--green); margin: 15px 0;">99.8%</div>
+                    <p style="color: var(--text-tertiary); font-size: 12px;">Uptime this week</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Trading Analytics Tab -->
+        <div id="trading-analytics" class="tab-content">
+            <h2 style="margin-bottom:20px;font-size:20px;font-weight:700;">Trading Analytics</h2>
+            <div class="content-grid">
+                <div class="card">
+                    <h3 style="margin-bottom:10px; font-weight:700;">Most Traded Pair</h3>
+                    <div style="font-size: 20px; font-weight: 800; color: var(--blue); margin: 15px 0;">BTC/USDT</div>
+                    <p style="color: var(--text-tertiary); font-size: 12px;">32% of total volume</p>
+                </div>
+                <div class="card">
+                    <h3 style="margin-bottom:10px; font-weight:700;">Avg Trade Duration</h3>
+                    <div style="font-size: 28px; font-weight: 800; color: var(--green); margin: 15px 0;">4.2h</div>
+                    <p style="color: var(--text-tertiary); font-size: 12px;">Median hold time</p>
+                </div>
+                <div class="card">
+                    <h3 style="margin-bottom:10px; font-weight:700;">Profitable Trades</h3>
+                    <div style="font-size: 28px; font-weight: 800; color: var(--green); margin: 15px 0;">62.3%</div>
+                    <p style="color: var(--text-tertiary); font-size: 12px;">Success rate this week</p>
+                </div>
+            </div>
+            <div class="table-container" style="margin-top: 20px;">
+                <table>
+                    <thead>
+                        <tr><th>Pair</th><th>Volume</th><th>Trades</th><th>Avg Win %</th><th>Trend</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>BTC/USDT</td><td>$155.8M</td><td>8,234</td><td>+3.2%</td><td>↑ Bullish</td></tr>
+                        <tr><td>ETH/USDT</td><td>$98.4M</td><td>5,123</td><td>+2.1%</td><td>→ Sideways</td></tr>
+                        <tr><td>SOL/USDT</td><td>$45.2M</td><td>2,894</td><td>+4.5%</td><td>↑ Bullish</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- User Analytics Tab -->
+        <div id="user-analytics" class="tab-content">
+            <h2 style="margin-bottom:20px;font-size:20px;font-weight:700;">User Metrics & Segmentation</h2>
+            <div class="content-grid">
+                <div class="card">
+                    <h3 style="margin-bottom:10px; font-weight:700;">Elite Users</h3>
+                    <div style="font-size: 28px; font-weight: 800; color: var(--blue); margin: 15px 0;">234</div>
+                    <p style="color: var(--text-tertiary); font-size: 12px;">Highest tier members</p>
+                </div>
+                <div class="card">
+                    <h3 style="margin-bottom:10px; font-weight:700;">New Users (30d)</h3>
+                    <div style="font-size: 28px; font-weight: 800; color: var(--green); margin: 15px 0;">1,234</div>
+                    <p style="color: var(--text-tertiary); font-size: 12px;">Retention: 78.5%</p>
+                </div>
+                <div class="card">
+                    <h3 style="margin-bottom:10px; font-weight:700;">Avg Account Balance</h3>
+                    <div style="font-size: 28px; font-weight: 800; color: var(--green); margin: 15px 0;">$8,432</div>
+                    <p style="color: var(--text-tertiary); font-size: 12px;">Across all users</p>
+                </div>
+                <div class="card">
+                    <h3 style="margin-bottom:10px; font-weight:700;">Churn Rate</h3>
+                    <div style="font-size: 28px; font-weight: 800; color: var(--red); margin: 15px 0;">2.3%</div>
+                    <p style="color: var(--text-tertiary); font-size: 12px;">Monthly inactive users</p>
+                </div>
+            </div>
+            <div class="table-container" style="margin-top: 20px;">
+                <table>
+                    <thead>
+                        <tr><th>Tier</th><th>User Count</th><th>Avg Balance</th><th>Activity Rate</th><th>Avg Trades/Day</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Elite</td><td>234</td><td>$45,234</td><td>95%</td><td>12.3</td></tr>
+                        <tr><td>Alpha</td><td>1,247</td><td>$12,456</td><td>82%</td><td>6.8</td></tr>
+                        <tr><td>Standard</td><td>5,892</td><td>$2,123</td><td>65%</td><td>2.1</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Alerts Tab -->
+        <div id="alerts" class="tab-content">
+            <h2 style="margin-bottom:20px;font-size:20px;font-weight:700;">Live Alerts & Notifications</h2>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr><th>Time</th><th>Type</th><th>Message</th><th>Severity</th><th>Action</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>14:32</td><td>Market</td><td>High volatility on BTC/USDT</td><td><span style="background: rgba(245,158,11,0.2); color: var(--orange); padding: 4px 8px; border-radius: 4px; font-size: 10px; font-weight: 700;">Warning</span></td><td><button class="btn" onclick="viewAlert('a1')">View</button></td></tr>
+                        <tr><td>12:15</td><td>System</td><td>Server latency increase detected</td><td><span style="background: rgba(245,158,11,0.2); color: var(--orange); padding: 4px 8px; border-radius: 4px; font-size: 10px; font-weight: 700;">Warning</span></td><td><button class="btn" onclick="viewAlert('a2')">View</button></td></tr>
+                        <tr><td>10:45</td><td>User</td><td>5 failed login attempts from user_2847</td><td><span style="background: rgba(239,68,68,0.2); color: var(--red); padding: 4px 8px; border-radius: 4px; font-size: 10px; font-weight: 700;">Critical</span></td><td><button class="btn" onclick="viewAlert('a3')">View</button></td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Risk Monitor Tab -->
+        <div id="risk-monitor" class="tab-content">
+            <h2 style="margin-bottom:20px;font-size:20px;font-weight:700;">Risk Monitoring & Market Health</h2>
+            <div class="content-grid">
+                <div class="card">
+                    <h3 style="margin-bottom:10px; font-weight:700;">Overall Market Risk</h3>
+                    <div style="font-size: 28px; font-weight: 800; color: var(--orange); margin: 15px 0;">Medium</div>
+                    <p style="color: var(--text-tertiary); font-size: 12px;">VIX-like indicator: 4.2</p>
+                </div>
+                <div class="card">
+                    <h3 style="margin-bottom:10px; font-weight:700;">High Risk Positions</h3>
+                    <div style="font-size: 28px; font-weight: 800; color: var(--red); margin: 15px 0;">23</div>
+                    <p style="color: var(--text-tertiary); font-size: 12px;">Margin below 50%</p>
+                </div>
+                <div class="card">
+                    <h3 style="margin-bottom:10px; font-weight:700;">Liquidation Risk</h3>
+                    <div style="font-size: 28px; font-weight: 800; color: var(--red); margin: 15px 0;">7</div>
+                    <p style="color: var(--text-tertiary); font-size: 12px;">Accounts under pressure</p>
+                </div>
+                <div class="card">
+                    <h3 style="margin-bottom:10px; font-weight:700;">Market Volatility</h3>
+                    <div style="font-size: 28px; font-weight: 800; color: var(--blue); margin: 15px 0;">3.8%</div>
+                    <p style="color: var(--text-tertiary); font-size: 12px;">24h avg price change</p>
+                </div>
+            </div>
+            <div class="table-container" style="margin-top: 20px;">
+                <table>
+                    <thead>
+                        <tr><th>Pair</th><th>Current Price</th><th>24h Change</th><th>Risk Level</th><th>Action</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>BTC/USDT</td><td>$43,250</td><td>+5.2%</td><td><span style="background: rgba(34,197,94,0.2); color: var(--green); padding: 4px 8px; border-radius: 4px; font-size: 10px; font-weight: 700;">Low</span></td><td><button class="btn">Monitor</button></td></tr>
+                        <tr><td>ETH/USDT</td><td>$2,384</td><td>-2.1%</td><td><span style="background: rgba(245,158,11,0.2); color: var(--orange); padding: 4px 8px; border-radius: 4px; font-size: 10px; font-weight: 700;">Medium</span></td><td><button class="btn">Monitor</button></td></tr>
+                        <tr><td>SOL/USDT</td><td>$158</td><td>+12.4%</td><td><span style="background: rgba(245,158,11,0.2); color: var(--orange); padding: 4px 8px; border-radius: 4px; font-size: 10px; font-weight: 700;">Medium</span></td><td><button class="btn">Monitor</button></td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Market Watch Tab -->
+        <div id="market-watch" class="tab-content">
+            <h2 style="margin-bottom:20px;font-size:20px;font-weight:700;">Market Watch - Live Prices</h2>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr><th>Pair</th><th>Price</th><th>24h High</th><th>24h Low</th><th>24h Change</th><th>Volume</th><th>Trend</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><strong>BTC/USDT</strong></td><td>$43,250</td><td>$44,100</td><td>$41,200</td><td><span style="color: var(--green);">+5.2%</span></td><td>$28.4B</td><td>📈 Strong Bullish</td></tr>
+                        <tr><td><strong>ETH/USDT</strong></td><td>$2,384</td><td>$2,550</td><td>$2,280</td><td><span style="color: var(--red);">-2.1%</span></td><td>$15.2B</td><td>📉 Bearish</td></tr>
+                        <tr><td><strong>SOL/USDT</strong></td><td>$158</td><td>$156</td><td>$140</td><td><span style="color: var(--green);">+12.4%</span></td><td>$2.1B</td><td>📈 Bullish</td></tr>
+                        <tr><td><strong>XRP/USDT</strong></td><td>$2.48</td><td>$2.52</td><td>$2.32</td><td><span style="color: var(--orange);">±0.8%</span></td><td>$1.8B</td><td>➡️ Sideways</td></tr>
+                        <tr><td><strong>ADA/USDT</strong></td><td>$0.98</td><td>$0.99</td><td>$0.91</td><td><span style="color: var(--green);">+3.2%</span></td><td>$892M</td><td>📈 Bullish</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Pair Analysis Tab -->
+        <div id="pair-analytics" class="tab-content">
+            <h2 style="margin-bottom:20px;font-size:20px;font-weight:700;">Pair Analysis & Correlations</h2>
+            <div class="content-grid">
+                <div class="card">
+                    <h3 style="margin-bottom:10px; font-weight:700;">Strongest Pair</h3>
+                    <div style="font-size: 24px; font-weight: 800; color: var(--green); margin: 15px 0;">SOL/USDT</div>
+                    <p style="color: var(--text-tertiary); font-size: 12px;">+12.4% (24h momentum)</p>
+                </div>
+                <div class="card">
+                    <h3 style="margin-bottom:10px; font-weight:700;">Most Volatile</h3>
+                    <div style="font-size: 24px; font-weight: 800; color: var(--orange); margin: 15px 0;">BTC/USDT</div>
+                    <p style="color: var(--text-tertiary); font-size: 12px;">Range: $41.2K - $44.1K</p>
+                </div>
+                <div class="card">
+                    <h3 style="margin-bottom:10px; font-weight:700;">Highest Volume</h3>
+                    <div style="font-size: 24px; font-weight: 800; color: var(--blue); margin: 15px 0;">BTC/USDT</div>
+                    <p style="color: var(--text-tertiary); font-size: 12px;">$28.4B (24h volume)</p>
+                </div>
+                <div class="card">
+                    <h3 style="margin-bottom:10px; font-weight:700;">Correlation Watch</h3>
+                    <div style="font-size: 24px; font-weight: 800; color: var(--green); margin: 15px 0;">0.87</div>
+                    <p style="color: var(--text-tertiary); font-size: 12px;">BTC/ETH correlation</p>
+                </div>
+            </div>
+            <div class="table-container" style="margin-top: 20px;">
+                <table>
+                    <thead>
+                        <tr><th>Pair Comparison</th><th>Correlation</th><th>Status</th><th>Trading Signal</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>BTC/USD ↔ ETH/USD</td><td><strong>0.87</strong></td><td>Highly Correlated</td><td>Both moving up</td></tr>
+                        <tr><td>BTC/USD ↔ SOL/USD</td><td><strong>0.76</strong></td><td>Moderately Correlated</td><td>Diverging trend</td></tr>
+                        <tr><td>ETH/USD ↔ XRP/USD</td><td><strong>0.42</strong></td><td>Weakly Correlated</td><td>Independent</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Advanced Client Analytics Tab -->
+        <div id="client-analytics" class="tab-content">
+            <h2 style="margin-bottom:20px;font-size:20px;font-weight:700;">Client Performance Analytics</h2>
+            <div class="content-grid">
+                <div class="card">
+                    <h3 style="margin-bottom:10px; font-weight:700;">Avg Client Win Rate</h3>
+                    <div style="font-size: 28px; font-weight: 800; color: var(--green); margin: 15px 0;">61.8%</div>
+                    <p style="color: var(--text-tertiary); font-size: 12px;">Your referred clients</p>
+                </div>
+                <div class="card">
+                    <h3 style="margin-bottom:10px; font-weight:700;">Total Volume (24h)</h3>
+                    <div style="font-size: 28px; font-weight: 800; color: var(--blue); margin: 15px 0;">$485M</div>
+                    <p style="color: var(--text-tertiary); font-size: 12px;">Client trading volume</p>
+                </div>
+                <div class="card">
+                    <h3 style="margin-bottom:10px; font-weight:700;">Commission Earned</h3>
+                    <div style="font-size: 28px; font-weight: 800; color: var(--green); margin: 15px 0;">$8,450</div>
+                    <p style="color: var(--text-tertiary); font-size: 12px;">This month</p>
+                </div>
+                <div class="card">
+                    <h3 style="margin-bottom:10px; font-weight:700;">Active Clients</h3>
+                    <div style="font-size: 28px; font-weight: 800; color: var(--orange); margin: 15px 0;">2,134</div>
+                    <p style="color: var(--text-tertiary); font-size: 12px;">Under your management</p>
+                </div>
+            </div>
+            <div class="table-container" style="margin-top: 20px;">
+                <table>
+                    <thead>
+                        <tr><th>Client Tier</th><th>Count</th><th>Avg Deposit</th><th>Avg Win Rate</th><th>Commission %</th><th>Total Earned</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><strong>Elite Clients</strong></td><td>234</td><td>$125,430</td><td><span style="color: var(--green);">68.2%</span></td><td>0.8%</td><td>$4,200</td></tr>
+                        <tr><td><strong>Alpha Clients</strong></td><td>567</td><td>$65,200</td><td><span style="color: var(--green);">62.5%</span></td><td>0.5%</td><td>$2,840</td></tr>
+                        <tr><td><strong>Standard Clients</strong></td><td>1,333</td><td>$18,750</td><td><span style="color: var(--green);">58.9%</span></td><td>0.3%</td><td>$1,410</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Market News & Events Tab -->
+        <div id="market-news" class="tab-content">
+            <h2 style="margin-bottom:20px;font-size:20px;font-weight:700;">Market News & Economic Events</h2>
+            <div style="display: flex; flex-direction: column; gap: 12px; max-height: 70vh; overflow-y: auto;">
+                <div style="padding: 16px; background: var(--bg-secondary); border: 1px solid var(--border); border-left: 3px solid var(--orange); border-radius: 8px;">
+                    <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 8px;">
+                        <div style="font-weight: 700; color: var(--text-primary);"><i class="fas fa-chart-line" style="color: var(--orange);"></i> High Impact Event</div>
+                        <div style="font-size: 11px; color: var(--text-tertiary); background: var(--bg-tertiary); padding: 4px 8px; border-radius: 4px;">US Fed Minutes</div>
+                    </div>
+                    <div style="font-size: 13px; color: var(--text-secondary); margin-bottom: 6px;">Federal Reserve releases FOMC meeting minutes</div>
+                    <div style="font-size: 11px; color: var(--text-tertiary);">Time: 14:00 UTC | Expected Impact: <span style="color: var(--red); font-weight: 600;">🔴 High</span></div>
+                </div>
+
+                <div style="padding: 16px; background: var(--bg-secondary); border: 1px solid var(--border); border-left: 3px solid var(--orange); border-radius: 8px;">
+                    <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 8px;">
+                        <div style="font-weight: 700; color: var(--text-primary);"><i class="fas fa-file-chart-line" style="color: var(--orange);"></i> Economic Data Release</div>
+                        <div style="font-size: 11px; color: var(--text-tertiary); background: var(--bg-tertiary); padding: 4px 8px; border-radius: 4px;">USD CPI</div>
+                    </div>
+                    <div style="font-size: 13px; color: var(--text-secondary); margin-bottom: 6px;">US Consumer Price Index - Inflation data</div>
+                    <div style="font-size: 11px; color: var(--text-tertiary);">Time: 13:30 UTC | Expected Impact: <span style="color: var(--red); font-weight: 600;">🔴 High</span></div>
+                </div>
+
+                <div style="padding: 16px; background: var(--bg-secondary); border: 1px solid var(--border); border-left: 3px solid var(--yellow); border-radius: 8px;">
+                    <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 8px;">
+                        <div style="font-weight: 700; color: var(--text-primary);"><i class="fas fa-briefcase" style="color: var(--orange);"></i> Corporate Action</div>
+                        <div style="font-size: 11px; color: var(--text-tertiary); background: var(--bg-tertiary); padding: 4px 8px; border-radius: 4px;">Tesla Earnings</div>
+                    </div>
+                    <div style="font-size: 13px; color: var(--text-secondary); margin-bottom: 6px;">Tesla Q4 2023 earnings announcement</div>
+                    <div style="font-size: 11px; color: var(--text-tertiary);">Time: 20:00 UTC | Expected Impact: <span style="color: var(--orange); font-weight: 600;">🟡 Medium</span></div>
+                </div>
+
+                <div style="padding: 16px; background: var(--bg-secondary); border: 1px solid var(--border); border-left: 3px solid var(--blue); border-radius: 8px;">
+                    <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 8px;">
+                        <div style="font-weight: 700; color: var(--text-primary);"><i class="fas fa-newspaper" style="color: var(--blue);"></i> Market Analysis</div>
+                        <div style="font-size: 11px; color: var(--text-tertiary); background: var(--bg-tertiary); padding: 4px 8px; border-radius: 4px;">Fed Rate Decisions</div>
+                    </div>
+                    <div style="font-size: 13px; color: var(--text-secondary); margin-bottom: 6px;">Cryptocurrency market poised for movement on monetary policy signals</div>
+                    <div style="font-size: 11px; color: var(--text-tertiary);">Published: 12:45 UTC | Sentiment: <span style="color: var(--blue); font-weight: 600;">Neutral</span></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Trading Tools & Calculators Tab -->
+        <div id="trading-tools" class="tab-content">
+            <h2 style="margin-bottom:20px;font-size:20px;font-weight:700;">Trading Tools & Position Calculators</h2>
+            <div class="content-grid">
+                <div class="card" style="display: flex; flex-direction: column; gap: 12px;">
+                    <h3 style="margin-bottom:0; font-weight:700;">Position Size Calculator</h3>
+                    <div style="display: flex; gap: 8px;">
+                        <input type="number" placeholder="Risk %" style="flex: 1; padding: 8px; background: var(--bg-tertiary); border: 1px solid var(--border); color: var(--text-primary); border-radius: 4px;" value="2">
+                        <input type="number" placeholder="Entry" style="flex: 1; padding: 8px; background: var(--bg-tertiary); border: 1px solid var(--border); color: var(--text-primary); border-radius: 4px;" value="43250">
+                    </div>
+                    <div style="display: flex; gap: 8px;">
+                        <input type="number" placeholder="Stop Loss" style="flex: 1; padding: 8px; background: var(--bg-tertiary); border: 1px solid var(--border); color: var(--text-primary); border-radius: 4px;" value="42800">
+                        <button style="padding: 8px 16px; background: var(--green); color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: 600;">Calculate</button>
+                    </div>
+                    <div style="padding: 8px; background: var(--bg-tertiary); border: 1px solid var(--border); border-radius: 4px; color: var(--green); font-weight: 600;">Position Size: 0.23 BTC | Risk/Reward: 1:3.2</div>
+                </div>
+
+                <div class="card" style="display: flex; flex-direction: column; gap: 12px;">
+                    <h3 style="margin-bottom:0; font-weight:700;">Profit Calculator</h3>
+                    <div style="display: flex; gap: 8px;">
+                        <input type="number" placeholder="Entry Price" style="flex: 1; padding: 8px; background: var(--bg-tertiary); border: 1px solid var(--border); color: var(--text-primary); border-radius: 4px;" value="43250">
+                        <input type="number" placeholder="Exit Price" style="flex: 1; padding: 8px; background: var(--bg-tertiary); border: 1px solid var(--border); color: var(--text-primary); border-radius: 4px;" value="44200">
+                    </div>
+                    <div style="display: flex; gap: 8px;">
+                        <input type="number" placeholder="Position Size" style="flex: 1; padding: 8px; background: var(--bg-tertiary); border: 1px solid var(--border); color: var(--text-primary); border-radius: 4px;" value="0.5">
+                        <button style="padding: 8px 16px; background: var(--green); color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: 600;">Calculate</button>
+                    </div>
+                    <div style="padding: 8px; background: var(--bg-tertiary); border: 1px solid var(--border); border-radius: 4px; color: var(--green); font-weight: 600;">Profit: $475 | ROI: 2.2%</div>
+                </div>
+            </div>
+            <div class="table-container" style="margin-top: 20px;">
+                <table>
+                    <thead>
+                        <tr><th>Tool Name</th><th>Description</th><th>Use Case</th><th>Action</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><strong>Pip Calculator</strong></td><td>Calculate pip value in your account currency</td><td>Risk management</td><td><button style="padding: 4px 8px; background: var(--blue); color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 11px;">Open</button></td></tr>
+                        <tr><td><strong>Lot Size Calculator</strong></td><td>Determine optimal position sizing based on risk percentage</td><td>Position sizing</td><td><button style="padding: 4px 8px; background: var(--blue); color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 11px;">Open</button></td></tr>
+                        <tr><td><strong>Margin Calculator</strong></td><td>Calculate required margin and available leverage</td><td>Leverage management</td><td><button style="padding: 4px 8px; background: var(--blue); color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 11px;">Open</button></td></tr>
+                        <tr><td><strong>Compound Calculator</strong></td><td>Project account growth with consistent win rate</td><td>Goal planning</td><td><button style="padding: 4px 8px; background: var(--blue); color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 11px;">Open</button></td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="theme-fab" id="themeFab"><i class="fas fa-palette"></i></div>
+
+<script>
+// Load saved theme
+const savedTheme = localStorage.getItem('theme');
+if (savedTheme && savedTheme.toLowerCase() !== 'dark') {
+    document.body.classList.add(`theme-${savedTheme.toLowerCase()}`);
+}
+
+const sidebar = document.getElementById('sidebar');
+let sidebarMode = localStorage.getItem('sidebarMode') || 'hover';
+
+function setSidebarMode(mode) {
+    sidebarMode = mode;
+    localStorage.setItem('sidebarMode', mode);
+    
+    sidebar.classList.remove('expanded', 'collapsed', 'hover-mode');
+    
+    if (mode === 'expanded') {
+        sidebar.classList.add('expanded');
+    } else if (mode === 'collapsed') {
+        sidebar.classList.add('collapsed');
+    } else {
+        sidebar.classList.add('hover-mode');
+    }
+    
+    // Update radio buttons
+    document.getElementById('sbExpanded').checked = (mode === 'expanded');
+    document.getElementById('sbCollapsed').checked = (mode === 'collapsed');
+    document.getElementById('sbHover').checked = (mode === 'hover');
+    
+    // Close menu
+    document.getElementById('sidebarSettingsMenu').classList.remove('show');
+}
+
+function toggleSidebarSettings() {
+    const menu = document.getElementById('sidebarSettingsMenu');
+    menu.classList.toggle('show');
+}
+
+// Close menu when clicking outside
+document.addEventListener('click', (e) => {
+    const menu = document.getElementById('sidebarSettingsMenu');
+    const btn = document.getElementById('sidebarSettingsBtn');
+    if (!e.target.closest('#sidebarSettingsBtn') && !e.target.closest('.sidebar-settings-menu')) {
+        menu.classList.remove('show');
+    }
+});
+
+// Hover mode detection for desktop
+sidebar.addEventListener('mouseenter', () => {
+    if (sidebarMode === 'hover') {
+        sidebar.classList.add('hovered');
+    }
+});
+
+sidebar.addEventListener('mouseleave', () => {
+    sidebar.classList.remove('hovered');
+});
+
+// Initialize sidebar mode
+setSidebarMode(sidebarMode);
+
+function switchTab(tabName) {
+    // Hide all tabs
+    document.querySelectorAll('.tab-content').forEach(tab => {
+        tab.classList.remove('active');
+    });
+    document.querySelectorAll('.sidebar-item').forEach(item => {
+        item.classList.remove('active');
+    });
+
+    // Show selected tab
+    document.getElementById(tabName).classList.add('active');
+    event.target.closest('.sidebar-item').classList.add('active');
+}
+
+function handleSupport(supportId) {
+    alert('Assisting with support ticket: ' + supportId);
+}
+
+function viewSupport(supportId) {
+    alert('Viewing support ticket: ' + supportId);
+}
+
+function respondQuery(queryId) {
+    alert('Responding to user query: ' + queryId);
+}
+
+function viewAlert(alertId) {
+    alert('Viewing alert: ' + alertId);
+}
+
+// Theme switcher
+const themeFab = document.getElementById('themeFab');
+const themes = ['dark', 'light', 'dark-blue', 'dark-purple', 'dark-green', 'ocean'];
+let currentThemeIndex = 0;
+
+themeFab.addEventListener('click', () => {
+    currentThemeIndex = (currentThemeIndex + 1) % themes.length;
+    const theme = themes[currentThemeIndex];
+    if (theme === 'dark') {
+        document.body.classList.remove(...themes.map(t => `theme-${t}`));
+    } else {
+        document.body.classList.remove(...themes.map(t => `theme-${t}`));
+        document.body.classList.add(`theme-${theme}`);
+    }
+    localStorage.setItem('theme', theme);
+});
+
+// Toggle theme
+function toggleTheme() {
+    const themes = ['dark', 'light'];
+    let currentTheme = localStorage.getItem('theme') || 'dark';
+    let themeIndex = themes.indexOf(currentTheme);
+    themeIndex = (themeIndex + 1) % themes.length;
+    const newTheme = themes[themeIndex];
+    
+    document.body.classList.remove(...themes.map(t => `theme-${t}`));
+    if (newTheme !== 'dark') {
+        document.body.classList.add(`theme-${newTheme}`);
+    }
+    localStorage.setItem('theme', newTheme);
+}
+
+// Logout function
+function logout() {
+    if (confirm('Are you sure you want to logout?')) {
+        localStorage.removeItem('coadminSession');
+        window.location.href = 'signin.html';
+    }
+}
+
+// Go to dashboard
+function goToDashboard() {
+    window.location.href = '../dashboard.html';
+}
+</script>
+</body>
+</html>
